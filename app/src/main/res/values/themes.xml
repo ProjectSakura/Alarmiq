@@ -1,0 +1,40 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Base.Theme.Alarmiq" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="materialAlertDialogTheme">@style/Theme.Alarmiq.AlertDialog</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Alarmiq.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Alarmiq.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Alarmiq.Large</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="Theme.Alarmiq" parent="Base.Theme.Alarmiq" />
+
+    <style name="Theme.Alarmiq.Ring" parent="Base.Theme.Alarmiq">
+        <item name="android:windowShowWallpaper">false</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
+    </style>
+
+    <style name="Theme.Alarmiq.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearance">@style/ShapeAppearance.Alarmiq.Large</item>
+    </style>
+
+    <style name="ShapeAppearance.Alarmiq.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">14dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Alarmiq.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">22dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Alarmiq.Large" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">32dp</item>
+    </style>
+
+</resources>

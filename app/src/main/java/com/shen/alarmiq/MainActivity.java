@@ -1,0 +1,114 @@
+package com.shen.alarmiq;
+
+import android.os.Build;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
+
+import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
+import com.shen.alarmiq.alarm.AlarmFragment;
+import com.shen.alarmiq.stopwatch.StopwatchFragment;
+import com.shen.alarmiq.timer.TimerFragment;
+import com.shen.alarmiq.world.WorldClockFragment;
+
+public class MainActivity extends AppCompatActivity {
+
+    private final ActivityResultLauncher<String> notificationsLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {});
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+
+        View root = findViewById(R.id.main);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(bars.left, 0, bars.right, 0);
+            return insets;
+        });
+
+        setupThemeToggle();
+
+        ViewPager2 pager = findViewById(R.id.pager);
+        if (pager != null) {
+            setupPager(pager);
+        } else {
+            setupMultiPane(savedInstanceState);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationsLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+        }
+    }
+
+    private void setupThemeToggle() {
+        ImageButton btnToggle = findViewById(R.id.btnThemeToggle);
+        if (btnToggle == null) return;
+
+        int currentMode = AppCompatDelegate.getDefaultNightMode();
+        boolean isDark = currentMode == AppCompatDelegate.MODE_NIGHT_YES ||
+                (currentMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM &&
+                        (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                                == android.content.res.Configuration.UI_MODE_NIGHT_YES);
+
+        btnToggle.setImageResource(isDark ? R.drawable.ic_sun : R.drawable.ic_moon);
+
+        btnToggle.setOnClickListener(v -> {
+            int newMode = isDark ? AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES;
+            AppCompatDelegate.setDefaultNightMode(newMode);
+            getSharedPreferences(AlarmiqApp.PREFS_SETTINGS, MODE_PRIVATE)
+                    .edit()
+                    .putInt(AlarmiqApp.KEY_THEME, newMode)
+                    .apply();
+        });
+    }
+
+    private void setupPager(ViewPager2 pager) {
+        TabLayout tabs = findViewById(R.id.tabs);
+        pager.setAdapter(new MainPagerAdapter(this));
+        pager.setOffscreenPageLimit(3);
+        new TabLayoutMediator(tabs, pager, (tab, position) -> {
+            switch (position) {
+                case 0: tab.setText(R.string.tab_alarms); break;
+                case 1: tab.setText(R.string.tab_stopwatch); break;
+                case 2: tab.setText(R.string.tab_timer); break;
+                case 3: tab.setText(R.string.tab_world); break;
+            }
+        }).attach();
+    }
+
+    private void setupMultiPane(Bundle savedInstanceState) {
+        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+        
+        tx.replace(R.id.paneAlarm, findOrCreate("pane-alarm", AlarmFragment.class), "pane-alarm");
+        tx.replace(R.id.paneStopwatch, findOrCreate("pane-stopwatch", StopwatchFragment.class), "pane-stopwatch");
+        tx.replace(R.id.paneTimer, findOrCreate("pane-timer", TimerFragment.class), "pane-timer");
+        tx.replace(R.id.paneWorld, findOrCreate("pane-world", WorldClockFragment.class), "pane-world");
+        
+        tx.commit();
+    }
+
+    private androidx.fragment.app.Fragment findOrCreate(String tag, Class<? extends androidx.fragment.app.Fragment> clazz) {
+        androidx.fragment.app.Fragment f = getSupportFragmentManager().findFragmentByTag(tag);
+        if (f == null) {
+            try {
+                f = clazz.newInstance();
+            } catch (Exception ignored) {}
+        }
+        return f;
+    }
+}

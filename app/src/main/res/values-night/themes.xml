@@ -1,0 +1,12 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.Alarmiq" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="materialAlertDialogTheme">@style/Theme.Alarmiq.AlertDialog</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Alarmiq.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Alarmiq.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Alarmiq.Large</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+</resources>
