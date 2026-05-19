@@ -6,6 +6,12 @@ Alarmiq is a modern, feature-rich Android clock application built with a focus o
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Material 3](https://img.shields.io/badge/Material%203-%236750A4.svg?style=for-the-badge&logo=materialdesign&logoColor=white)
 
+## 📸 Screenshots
+
+| Light Mode | Dark Mode | Tablet Dashboard |
+|:---:|:---:|:---:|
+| <img src="screenshots/photo_2026-05-19_22-09-49.jpg" width="260"> | <img src="screenshots/photo_2026-05-19_21-59-04.jpg" width="260"> | <img src="screenshots/photo_2026-05-19_21-56-20.jpg" width="400"> |
+
 ## ✨ Features
 
 ### 🔔 Smart Alarms
