@@ -73,16 +73,18 @@ public class WorldClockFragment extends Fragment {
 
         ViewCompat.setOnApplyWindowInsetsListener(recycler, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            boolean isMultiPane = getActivity() != null && getActivity().findViewById(R.id.pager) == null;
             v.setPadding(v.getPaddingLeft(), v.getPaddingTop(),
-                    v.getPaddingRight(), bars.bottom + dp(120));
+                    v.getPaddingRight(), (isMultiPane ? 0 : bars.bottom) + dp(100));
             return insets;
         });
         ViewCompat.setOnApplyWindowInsetsListener(fab, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            lp.bottomMargin = bars.bottom + dp(24);
-            lp.rightMargin = bars.right + dp(24);
-            lp.leftMargin = bars.left + dp(24);
+            boolean isMultiPane = getActivity() != null && getActivity().findViewById(R.id.pager) == null;
+            lp.bottomMargin = (isMultiPane ? 0 : bars.bottom) + dp(24);
+            lp.rightMargin = (isMultiPane ? 0 : bars.right) + dp(24);
+            lp.leftMargin = (isMultiPane ? 0 : bars.left) + dp(24);
             v.setLayoutParams(lp);
             return insets;
         });

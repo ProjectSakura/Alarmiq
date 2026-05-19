@@ -79,8 +79,9 @@ public class TimerFragment extends Fragment {
         int basePx = (int) (24 * getResources().getDisplayMetrics().density);
         ViewCompat.setOnApplyWindowInsetsListener(scrollView, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            boolean isMultiPane = getActivity() != null && getActivity().findViewById(R.id.pager) == null;
             v.setPadding(v.getPaddingLeft(), v.getPaddingTop(),
-                    v.getPaddingRight(), bars.bottom + basePx);
+                    v.getPaddingRight(), (isMultiPane ? 0 : bars.bottom) + basePx);
             return insets;
         });
 

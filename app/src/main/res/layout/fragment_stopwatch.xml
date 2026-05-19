@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,110 +7,140 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardClock"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="24dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainer"
-            app:cardElevation="0dp"
-            app:cardCornerRadius="32dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:baselineAligned="true"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="48dp">
-
-                <TextView
-                    android:id="@+id/txtMain"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="84sp"
-                    android:fontFeatureSettings="tnum"
-                    android:textStyle="bold"
-                    android:includeFontPadding="false"
-                    tools:text="00:00" />
-
-                <TextView
-                    android:id="@+id/txtFraction"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="44sp"
-                    android:fontFeatureSettings="tnum"
-                    android:includeFontPadding="false"
-                    tools:text=".00" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="16dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="32dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="20dp"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:baselineAligned="true"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="24dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReset"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="64dp"
-                android:layout_marginEnd="8dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:paddingHorizontal="0dp"
-                android:tooltipText="@string/tooltip_reset"
-                android:text="@string/reset"
-                app:cornerRadius="22dp" />
+            <TextView
+                android:id="@+id/txtMain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="60sp"
+                android:fontFeatureSettings="tnum"
+                android:textStyle="bold"
+                android:includeFontPadding="false"
+                tools:text="00:00" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnStartPause"
-                android:layout_width="0dp"
-                android:layout_weight="1.4"
-                android:layout_height="64dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:paddingHorizontal="0dp"
-                android:tooltipText="@string/tooltip_start_pause"
-                android:text="@string/start"
-                app:cornerRadius="22dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLap"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="64dp"
-                android:layout_marginStart="8dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:paddingHorizontal="0dp"
-                android:tooltipText="@string/tooltip_lap"
-                android:text="@string/lap"
-                app:cornerRadius="22dp" />
+            <TextView
+                android:id="@+id/txtFraction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="30sp"
+                android:fontFeatureSettings="tnum"
+                android:includeFontPadding="false"
+                tools:text=".00" />
         </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerLaps"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+    <LinearLayout
+        android:id="@+id/buttonGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/cardClock"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReset"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_marginTop="24dp"
-            android:clipToPadding="false"
-            android:paddingHorizontal="24dp"
-            android:paddingBottom="24dp" />
+            android:layout_height="72dp"
+            android:layout_marginEnd="12dp"
+            android:paddingHorizontal="0dp"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textStyle="bold"
+            android:text="@string/reset"
+            app:cornerRadius="36dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStartPause"
+            android:layout_width="0dp"
+            android:layout_weight="1.4"
+            android:layout_height="72dp"
+            android:paddingHorizontal="0dp"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textStyle="bold"
+            android:text="@string/start"
+            app:cornerRadius="36dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLap"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="72dp"
+            android:layout_marginStart="12dp"
+            android:paddingHorizontal="0dp"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textStyle="bold"
+            android:text="@string/lap"
+            app:cornerRadius="36dp" />
     </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardLaps"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="28dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonGroup"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="8dp"
+                android:text="Lap List"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="?attr/colorPrimary" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerLaps"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="16dp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -73,10 +73,13 @@ public class StopwatchFragment extends Fragment {
         recyclerLaps.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerLaps.setAdapter(lapAdapter);
 
-        ViewCompat.setOnApplyWindowInsetsListener(recyclerLaps, (v, insets) -> {
+        View root = view.findViewById(R.id.stopwatchRoot);
+        int basePx = (int) (24 * getResources().getDisplayMetrics().density);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            boolean isMultiPane = getActivity() != null && getActivity().findViewById(R.id.pager) == null;
             v.setPadding(v.getPaddingLeft(), v.getPaddingTop(),
-                    v.getPaddingRight(), bars.bottom + (int) (24 * getResources().getDisplayMetrics().density));
+                    v.getPaddingRight(), (isMultiPane ? 0 : bars.bottom) + basePx);
             return insets;
         });
 
