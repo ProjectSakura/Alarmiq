@@ -5,20 +5,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/stopwatchRoot"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="12dp">
 
+    <!-- Guideline for side-by-side layout in landscape (45% split) -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <!-- Left Side: Clock and Controls -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardClock"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="16dp"
+        android:layout_margin="6dp"
         app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:cardElevation="0dp"
-        app:cardCornerRadius="32dp"
+        app:cardCornerRadius="28dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonGroup"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintVertical_chainStyle="packed">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,15 +37,15 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:baselineAligned="true"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="24dp">
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="16dp">
 
             <TextView
                 android:id="@+id/txtMain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="60sp"
+                android:textSize="48sp"
                 android:fontFeatureSettings="tnum"
                 android:textStyle="bold"
                 android:includeFontPadding="false"
@@ -45,7 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="?attr/colorPrimary"
-                android:textSize="30sp"
+                android:textSize="24sp"
                 android:fontFeatureSettings="tnum"
                 android:includeFontPadding="false"
                 tools:text=".00" />
@@ -54,69 +65,69 @@
 
     <LinearLayout
         android:id="@+id/buttonGroup"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="6dp"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal"
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/cardClock"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toStartOf="@+id/guideline">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnReset"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="72dp"
-            android:layout_marginEnd="12dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="4dp"
             android:paddingHorizontal="0dp"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             android:textStyle="bold"
             android:text="@string/reset"
-            app:cornerRadius="36dp" />
+            app:cornerRadius="28dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStartPause"
             android:layout_width="0dp"
-            android:layout_weight="1.4"
-            android:layout_height="72dp"
+            android:layout_weight="1.2"
+            android:layout_height="56dp"
             android:paddingHorizontal="0dp"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             android:textStyle="bold"
             android:text="@string/start"
-            app:cornerRadius="36dp" />
+            app:cornerRadius="28dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLap"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="72dp"
-            android:layout_marginStart="12dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="4dp"
             android:paddingHorizontal="0dp"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             android:textStyle="bold"
             android:text="@string/lap"
-            app:cornerRadius="36dp" />
+            app:cornerRadius="28dp" />
     </LinearLayout>
 
+    <!-- Right Side: Lap List with Header -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardLaps"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="6dp"
         app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
         app:cardElevation="0dp"
-        app:cardCornerRadius="28dp"
-        app:layout_constraintTop_toBottomOf="@id/buttonGroup"
+        app:cardCornerRadius="24dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:minHeight="200dp">
+        app:layout_constraintStart_toEndOf="@id/guideline"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -126,11 +137,11 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="20dp"
-                android:paddingTop="20dp"
-                android:paddingBottom="8dp"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="4dp"
                 android:text="Lap List"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="?attr/colorPrimary" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -139,8 +150,8 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:nestedScrollingEnabled="false"
-                android:paddingHorizontal="16dp"
-                android:paddingBottom="16dp" />
+                android:paddingHorizontal="12dp"
+                android:paddingBottom="12dp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
