@@ -2,7 +2,7 @@
 
 Alarmiq is a modern, feature-rich Android clock application built with a focus on precision, aesthetics, and user experience. It combines essential timekeeping tools with a unique "IQ" challenge system to ensure you wake up sharp and ready for the day.
 
-![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white)
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Material 3](https://img.shields.io/badge/Material%203-%236750A4.svg?style=for-the-badge&logo=materialdesign&logoColor=white)
 

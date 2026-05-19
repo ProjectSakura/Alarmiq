@@ -10,10 +10,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * Curated list of cities for the picker. Each entry maps a friendly display
- * name to its IANA time zone id. Using a curated list (rather than
- * TimeZone.getAvailableIDs which returns ~600 entries including aliases and
- * Etc/GMT zones) keeps the picker manageable.
+ * Provides city data for the world clock. Uses a small list of "featured" cities
+ * as default suggestions, but supports dynamic searching across the entire
+ * system TimeZone database.
  */
 public final class Cities {
 
@@ -27,59 +26,19 @@ public final class Cities {
     }
 
     private static final City[] CITIES = {
-            new City("Auckland", "Pacific/Auckland"),
-            new City("Bangkok", "Asia/Bangkok"),
-            new City("Beijing", "Asia/Shanghai"),
             new City("Berlin", "Europe/Berlin"),
-            new City("Brisbane", "Australia/Brisbane"),
-            new City("Buenos Aires", "America/Argentina/Buenos_Aires"),
             new City("Cairo", "Africa/Cairo"),
-            new City("Cape Town", "Africa/Johannesburg"),
             new City("Chicago", "America/Chicago"),
-            new City("Denver", "America/Denver"),
             new City("Dubai", "Asia/Dubai"),
-            new City("Dublin", "Europe/Dublin"),
             new City("Hong Kong", "Asia/Hong_Kong"),
-            new City("Honolulu", "Pacific/Honolulu"),
-            new City("Istanbul", "Europe/Istanbul"),
-            new City("Jakarta", "Asia/Jakarta"),
-            new City("Johannesburg", "Africa/Johannesburg"),
-            new City("Karachi", "Asia/Karachi"),
-            new City("Kolkata", "Asia/Kolkata"),
-            new City("Lagos", "Africa/Lagos"),
             new City("London", "Europe/London"),
             new City("Los Angeles", "America/Los_Angeles"),
-            new City("Madrid", "Europe/Madrid"),
-            new City("Manila", "Asia/Manila"),
-            new City("Melbourne", "Australia/Melbourne"),
-            new City("Mexico City", "America/Mexico_City"),
             new City("Moscow", "Europe/Moscow"),
-            new City("Mumbai", "Asia/Kolkata"),
-            new City("Nairobi", "Africa/Nairobi"),
-            new City("New Delhi", "Asia/Kolkata"),
             new City("New York", "America/New_York"),
             new City("Paris", "Europe/Paris"),
-            new City("Reykjavik", "Atlantic/Reykjavik"),
-            new City("Rio de Janeiro", "America/Sao_Paulo"),
-            new City("Riyadh", "Asia/Riyadh"),
-            new City("Rome", "Europe/Rome"),
-            new City("San Francisco", "America/Los_Angeles"),
-            new City("Santiago", "America/Santiago"),
-            new City("São Paulo", "America/Sao_Paulo"),
             new City("Seoul", "Asia/Seoul"),
-            new City("Shanghai", "Asia/Shanghai"),
-            new City("Singapore", "Asia/Singapore"),
-            new City("Stockholm", "Europe/Stockholm"),
             new City("Sydney", "Australia/Sydney"),
-            new City("Taipei", "Asia/Taipei"),
-            new City("Tehran", "Asia/Tehran"),
             new City("Tokyo", "Asia/Tokyo"),
-            new City("Toronto", "America/Toronto"),
-            new City("Vancouver", "America/Vancouver"),
-            new City("Vienna", "Europe/Vienna"),
-            new City("Warsaw", "Europe/Warsaw"),
-            new City("Wellington", "Pacific/Auckland"),
-            new City("Zurich", "Europe/Zurich"),
     };
 
     public static List<City> all() {
@@ -87,20 +46,39 @@ public final class Cities {
     }
 
     public static List<City> filter(String query) {
-        if (query == null || query.trim().isEmpty()) {
-            List<City> out = new ArrayList<>(Arrays.asList(CITIES));
-            sortAlpha(out);
-            return out;
-        }
-        String q = query.trim().toLowerCase(Locale.getDefault());
-        List<City> out = new ArrayList<>();
+        List<City> results = new ArrayList<>();
+        String q = query == null ? "" : query.trim().toLowerCase(Locale.getDefault());
+
+        // 1. Check curated list first (priority)
         for (City c : CITIES) {
-            if (c.displayName.toLowerCase(Locale.getDefault()).contains(q)) {
-                out.add(c);
+            if (q.isEmpty() || c.displayName.toLowerCase(Locale.getDefault()).contains(q)) {
+                results.add(c);
             }
         }
-        sortAlpha(out);
-        return out;
+
+        // 2. Add from system TimeZone database if not already present
+        if (!q.isEmpty()) {
+            String[] ids = TimeZone.getAvailableIDs();
+            for (String id : ids) {
+                // Only consider "Continent/City" or "Continent/Region/City" patterns
+                if (!id.contains("/")) continue;
+                
+                String name = id.substring(id.lastIndexOf('/') + 1).replace('_', ' ');
+                if (name.toLowerCase(Locale.getDefault()).contains(q)) {
+                    // Avoid duplicates if already in curated list
+                    boolean exists = false;
+                    for (City r : results) {
+                        if (r.zoneId.equals(id)) { exists = true; break; }
+                    }
+                    if (!exists) {
+                        results.add(new City(name, id));
+                    }
+                }
+            }
+        }
+
+        sortAlpha(results);
+        return results;
     }
 
     public static String displayNameForZone(String zoneId) {

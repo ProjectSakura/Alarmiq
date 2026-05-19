@@ -65,12 +65,12 @@ public class AnalogClockPicker extends View {
     }
 
     private void init() {
-        int surfaceVariant = resolveThemeColor("colorSurfaceContainerHigh", 0xFF2A2A2A);
-        int outline = resolveThemeColor("colorOutlineVariant", 0xFF444444);
-        int primary = resolveThemeColor("colorPrimary", 0xFF7DD3FC);
-        int onSurface = resolveThemeColor("colorOnSurface", 0xFFE0E0E0);
-        int onSurfaceVariant = resolveThemeColor("colorOnSurfaceVariant", 0xFFAAAAAA);
-        int onPrimary = resolveThemeColor("colorOnPrimary", 0xFF000000);
+        int surfaceVariant = resolveAttrColor("colorSurfaceContainerHigh", 0xFF2A2A2A);
+        int outline = resolveAttrColor("colorOutlineVariant", 0xFF444444);
+        int primary = resolveAttrColor("colorPrimary", 0xFF7DD3FC);
+        int onSurface = resolveAttrColor("colorOnSurface", 0xFFE0E0E0);
+        int onSurfaceVariant = resolveAttrColor("colorOnSurfaceVariant", 0xFFAAAAAA);
+        int onPrimary = resolveAttrColor("colorOnPrimary", 0xFF000000);
 
         facePaint.setStyle(Paint.Style.FILL);
         facePaint.setColor(surfaceVariant);
@@ -111,6 +111,24 @@ public class AnalogClockPicker extends View {
 
         setClickable(true);
         setFocusable(true);
+    }
+
+    private int resolveAttrColor(String attrName, int fallback) {
+        Context ctx = getContext();
+        int attrId = ctx.getResources().getIdentifier(attrName, "attr", ctx.getPackageName());
+        if (attrId == 0) {
+            attrId = ctx.getResources().getIdentifier(attrName, "attr", "android");
+        }
+        if (attrId == 0) return fallback;
+        
+        TypedValue tv = new TypedValue();
+        if (ctx.getTheme().resolveAttribute(attrId, tv, true)) {
+            if (tv.resourceId != 0) {
+                return ContextCompat.getColor(ctx, tv.resourceId);
+            }
+            return tv.data;
+        }
+        return fallback;
     }
 
     public void setOnTimeChangedListener(OnTimeChangedListener l) {
@@ -314,20 +332,5 @@ public class AnalogClockPicker extends View {
 
     private float dp(float dp) {
         return dp * getResources().getDisplayMetrics().density;
-    }
-
-    private int resolveThemeColor(String attrName, int fallback) {
-        Context ctx = getContext();
-        int attrId = ctx.getResources().getIdentifier(attrName, "attr", ctx.getPackageName());
-        if (attrId == 0) {
-            attrId = ctx.getResources().getIdentifier(attrName, "attr", "android");
-        }
-        if (attrId == 0) return fallback;
-        TypedValue tv = new TypedValue();
-        if (!ctx.getTheme().resolveAttribute(attrId, tv, true)) return fallback;
-        if (tv.resourceId != 0) {
-            return ContextCompat.getColor(ctx, tv.resourceId);
-        }
-        return tv.data;
     }
 }
