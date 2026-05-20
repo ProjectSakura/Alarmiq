@@ -15,9 +15,9 @@ Alarmiq is a modern, feature-rich Android clock application built with a focus o
 ## ✨ Features
 
 ### 🔔 Smart Alarms
-- **IQ Challenges**: Solve math problems (from Easy to Punishment difficulty), type paragraphs, or take photos to dismiss your alarm.
-- **Precision Scheduling**: Uses `AlarmManager`'s exact alarm features to ensure you never miss a beat.
-- **Customizable**: Set repeating days, custom labels, and choose your favorite ringtones.
+- **Dynamic IQ Challenges**: Solve procedurally generated math problems (from Easy to Punishment difficulty), or tackle complex, dynamically built linguistic and typing challenges to dismiss your alarm.
+- **No Muscle Memory**: Every challenge is unique, ensuring you can\'t memorize answers or rely on repetitive typing patterns.
+- **Precision Scheduling**: Uses `AlarmManager`\'s exact alarm features to ensure you never miss a beat.
 
 ### ⏱️ Precision Timer & Stopwatch
 - **Reliable Timer**: A persistent timer that survives app restarts and process death.

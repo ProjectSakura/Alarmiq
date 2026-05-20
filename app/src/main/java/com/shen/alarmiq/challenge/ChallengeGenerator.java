@@ -20,6 +20,7 @@ public class ChallengeGenerator {
 
     private final Random random = new Random();
     private final MathProblemGenerator math = new MathProblemGenerator();
+    private final DynamicChallengeGenerator dynamic = new DynamicChallengeGenerator();
 
     public List<Challenge> generate(Difficulty difficulty) {
         switch (difficulty) {
@@ -72,14 +73,10 @@ public class ChallengeGenerator {
     }
 
     private Challenge reverseChallenge() {
-        String phrase = ChallengeBank.REVERSE_PHRASES[
-                random.nextInt(ChallengeBank.REVERSE_PHRASES.length)];
-        return Challenge.reverse(phrase);
+        return Challenge.reverse(dynamic.nextPhrase());
     }
 
     private Challenge paragraphChallenge() {
-        String para = ChallengeBank.PARAGRAPHS[
-                random.nextInt(ChallengeBank.PARAGRAPHS.length)];
-        return Challenge.paragraph(para);
+        return Challenge.paragraph(dynamic.nextParagraph());
     }
 }
