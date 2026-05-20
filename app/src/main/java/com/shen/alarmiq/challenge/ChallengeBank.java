@@ -4,38 +4,23 @@ package com.shen.alarmiq.challenge;
 final class ChallengeBank {
 
     static final String[] REVERSE_PHRASES = {
-            "wake up sleepy head",
-            "morning coffee tastes great",
-            "the early bird gets the worm",
-            "rise and shine its a new day",
-            "another day another opportunity",
-            "fresh start cold water on face",
-            "shake off the dream and stand up",
-            "you can sleep when you are productive",
-            "the bed is a trap escape now",
-            "open the curtains let sunlight in"
+            "procrastination is the thief of time and dreams",
+            "meticulous planning prevents pathetic performance daily",
+            "extraordinary results require extraordinary discipline today",
+            "the path to success is paved with consistent effort",
+            "your future depends on what you do right now",
+            "embrace the struggle for it builds your character",
+            "clarity of purpose is the starting point of achievement",
+            "discipline is doing what needs to be done anyway",
+            "the only limit to our realization of tomorrow is today",
+            "action is the foundational key to all great success"
     };
 
     static final String[] PARAGRAPHS = {
-            "Waking up early is not about hating sleep. It is about valuing the quiet hours before the world begins to demand your attention. Use this stillness to think clearly, to move your body, or to set an intention. The morning rewards those who claim it before anyone else does today.",
-            "Every alarm is a tiny argument with your future self. The version of you that set this time believed today was worth showing up for. The version of you reading these words right now gets to honor that decision or break it. The choice is small but it shapes the entire week ahead.",
-            "Sleep is essential but so is momentum. The longer you lie still the harder it becomes to begin. Sit up first then place both feet flat on the floor. From this simple posture everything else becomes negotiable. Breathing slows the heart speeds and the day finally agrees to start with you.",
-            "Cold water on your face will not kill you. It will however reset every drowsy signal your brain is trying to send. Stand up walk to the sink and splash twice. Three deep breaths and the bargain you tried to make with the snooze button quietly expires forever now today."
-    };
-
-    static final String[] PHOTO_SUBJECTS = {
-            "sink",
-            "toothbrush",
-            "bathroom mirror",
-            "kitchen counter",
-            "refrigerator door",
-            "your front door",
-            "a glass of water",
-            "your shoes",
-            "a window",
-            "the ceiling above you",
-            "a bookshelf",
-            "anything outside your room"
+            "The philosophy of the morning is not merely about rising early; it is an exercise in asserting dominance over the inertia of comfort. When you choose to leave the warmth of the bed, you are making a profound statement to your subconscious that your goals outweigh your immediate desires. This initial victory, however small it may seem, sets a psychological precedent that will resonate through every decision you make for the rest of the day.",
+            "Cognitive resilience is built in the moments when we choose the difficult path over the easy one. Typing these words is a deliberate cognitive load designed to force your prefrontal cortex into an active state. By engaging with complex sentence structures and varied vocabulary, you are effectively jump-starting your neural pathways. This mental friction is the catalyst that transforms a drowsy mind into a sharp, focused instrument ready for the day.",
+            "Stoicism teaches us that while we cannot control external events, we have absolute mastery over our internal reactions. An alarm is an external event that demands an internal response. To grumble is to be a victim of the circumstance; to rise with purpose is to be the architect of your own reality. Every character you type correctly is a reinforcement of your agency, a tangible proof that you are in control of your hands, your eyes, and your will.",
+            "The intersection of ambition and execution is where true progress resides. Many people dream of greatness while they are asleep, but only a select few are willing to endure the discomfort required to achieve it while awake. This challenge is a gatekeeper, a simple test of whether you are willing to do the work that others avoid. Precision in typing reflects precision in thought, and precision in thought leads to excellence in action across all domains of life."
     };
 
     private ChallengeBank() {}

@@ -20,8 +20,8 @@
     <string name="difficulty_easy_desc">Single-digit addition</string>
     <string name="difficulty_normal_desc">Two-digit add &amp; subtract</string>
     <string name="difficulty_hard_desc">Multiplication and division</string>
-    <string name="difficulty_nightmare_desc">Math, typing &amp; photo · 5 challenges</string>
-    <string name="difficulty_punishment_desc">6 hard mixed challenges · The ultimate wake-up</string>
+    <string name="difficulty_nightmare_desc">Complex math &amp; typing · 5 challenges</string>
+    <string name="difficulty_punishment_desc">6 extreme mixed challenges · The ultimate wake-up</string>
     <string name="channel_name">Active alarm</string>
     <string name="channel_desc">Plays your alarm sound</string>
     <string name="alarm_notification_title">Alarm ringing</string>
@@ -33,10 +33,6 @@
     <string name="challenge_math_label">Solve</string>
     <string name="challenge_reverse_label">Type this phrase backwards</string>
     <string name="challenge_paragraph_label">Type this paragraph exactly</string>
-    <string name="challenge_photo_label">Take a photo of</string>
-    <string name="challenge_camera_button">Open camera</string>
-    <string name="challenge_photo_captured">Photo captured ✓</string>
-    <string name="challenge_retake">Retake</string>
     <string name="challenge_match_too_low">Too many typos. Try again.</string>
     <string name="challenge_paragraph_hint">Type the paragraph above</string>
     <string name="challenge_reverse_hint">Reversed phrase</string>

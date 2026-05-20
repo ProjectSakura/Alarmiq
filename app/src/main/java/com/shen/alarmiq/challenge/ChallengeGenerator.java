@@ -13,8 +13,8 @@ import java.util.Random;
  * Builds the ordered list of challenges for one alarm firing.
  *
  * <p>The easier difficulties (EASY/NORMAL/HARD) deliver only math problems
- * scaled to that level. NIGHTMARE and PUNISHMENT mix in typing, paragraph and
- * photo challenges so the user can't muscle-memory their way through.</p>
+ * scaled to that level. NIGHTMARE and PUNISHMENT mix in complex typing and
+ * paragraph challenges so the user can't muscle-memory their way through.</p>
  */
 public class ChallengeGenerator {
 
@@ -44,25 +44,25 @@ public class ChallengeGenerator {
     /** Mix designed for NIGHTMARE — 5 challenges, varied. */
     private List<Challenge> nightmare() {
         List<Challenge> out = new ArrayList<>();
-        out.add(mathChallenge(Difficulty.HARD));
+        out.add(mathChallenge(Difficulty.NIGHTMARE));
         out.add(reverseChallenge());
-        out.add(mathChallenge(Difficulty.HARD));
-        out.add(photoChallenge());
+        out.add(mathChallenge(Difficulty.NIGHTMARE));
         out.add(paragraphChallenge());
+        out.add(mathChallenge(Difficulty.NIGHTMARE));
         return out;
     }
 
     /** Mix designed for PUNISHMENT — 6 challenges, all hard variants. */
     private List<Challenge> punishment() {
         List<Challenge> out = new ArrayList<>();
-        out.add(mathChallenge(Difficulty.HARD));
+        out.add(mathChallenge(Difficulty.PUNISHMENT));
         out.add(reverseChallenge());
-        out.add(photoChallenge());
         out.add(paragraphChallenge());
-        out.add(mathChallenge(Difficulty.HARD));
+        out.add(mathChallenge(Difficulty.PUNISHMENT));
         out.add(reverseChallenge());
-        // Shuffle the middle so the user can't predict the order.
-        Collections.shuffle(out.subList(0, out.size()), random);
+        out.add(paragraphChallenge());
+        // Shuffle everything so the user can't predict the order.
+        Collections.shuffle(out, random);
         return out;
     }
 
@@ -81,11 +81,5 @@ public class ChallengeGenerator {
         String para = ChallengeBank.PARAGRAPHS[
                 random.nextInt(ChallengeBank.PARAGRAPHS.length)];
         return Challenge.paragraph(para);
-    }
-
-    private Challenge photoChallenge() {
-        String subject = ChallengeBank.PHOTO_SUBJECTS[
-                random.nextInt(ChallengeBank.PHOTO_SUBJECTS.length)];
-        return Challenge.photo(subject);
     }
 }

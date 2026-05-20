@@ -93,7 +93,7 @@
                     android:fontFeatureSettings="tnum"
                     tools:text="12 × 7" />
 
-                <!-- Long prompt (paragraph or reverse phrase). Hidden for math/photo. -->
+                <!-- Long prompt (paragraph or reverse phrase). Hidden for math. -->
                 <TextView
                     android:id="@+id/txtPromptLong"
                     android:layout_width="match_parent"
@@ -107,31 +107,7 @@
                     tools:visibility="visible"
                     tools:text="wake up sleepy head" />
 
-                <!-- Photo preview + camera button. Hidden unless photo challenge. -->
-                <ImageView
-                    android:id="@+id/imgPhotoPreview"
-                    android:layout_width="180dp"
-                    android:layout_height="140dp"
-                    android:layout_marginTop="16dp"
-                    android:scaleType="centerCrop"
-                    android:background="@drawable/bg_card_filled"
-                    android:visibility="gone"
-                    android:contentDescription="@null"
-                    tools:visibility="gone" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCamera"
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="14dp"
-                    android:text="@string/challenge_camera_button"
-                    android:visibility="gone"
-                    app:cornerRadius="22dp"
-                    app:icon="@drawable/ic_camera"
-                    tools:visibility="gone" />
-
-                <!-- Text input. Hidden for photo challenge. -->
+                <!-- Text input. -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/inputLayout"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"

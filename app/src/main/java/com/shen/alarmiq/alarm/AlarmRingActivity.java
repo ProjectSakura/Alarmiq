@@ -2,21 +2,16 @@ package com.shen.alarmiq.alarm;
 
 import android.app.KeyguardManager;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.InputType;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -44,7 +39,6 @@ public class AlarmRingActivity extends AppCompatActivity {
     private Difficulty difficulty;
     private List<Challenge> challenges;
     private int challengeIndex = 0;
-    private boolean photoCaptured = false;
 
     private TextView txtRingTime;
     private TextView txtRingLabel;
@@ -53,27 +47,10 @@ public class AlarmRingActivity extends AppCompatActivity {
     private TextView txtPromptShort;
     private TextView txtPromptLong;
     private TextView txtFeedback;
-    private ImageView imgPhotoPreview;
     private TextInputLayout inputLayout;
     private TextInputEditText inputAnswer;
-    private MaterialButton btnCamera;
     private MaterialButton btnSubmit;
     private LinearProgressIndicator progressBar;
-
-    private final ActivityResultLauncher<Intent> cameraLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() != RESULT_OK || result.getData() == null) return;
-                Object data = result.getData().getExtras() != null
-                        ? result.getData().getExtras().get("data") : null;
-                if (data instanceof Bitmap) {
-                    imgPhotoPreview.setImageBitmap((Bitmap) data);
-                    imgPhotoPreview.setVisibility(View.VISIBLE);
-                    photoCaptured = true;
-                    btnCamera.setText(R.string.challenge_retake);
-                    btnSubmit.setEnabled(true);
-                    btnSubmit.setText(R.string.challenge_photo_captured);
-                }
-            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,10 +91,8 @@ public class AlarmRingActivity extends AppCompatActivity {
         txtPromptShort = findViewById(R.id.txtPromptShort);
         txtPromptLong = findViewById(R.id.txtPromptLong);
         txtFeedback = findViewById(R.id.txtFeedback);
-        imgPhotoPreview = findViewById(R.id.imgPhotoPreview);
         inputLayout = findViewById(R.id.inputLayout);
         inputAnswer = findViewById(R.id.inputAnswer);
-        btnCamera = findViewById(R.id.btnCamera);
         btnSubmit = findViewById(R.id.btnSubmit);
         progressBar = findViewById(R.id.progressBar);
         progressBar.setMax(challenges.size());
@@ -130,7 +105,6 @@ public class AlarmRingActivity extends AppCompatActivity {
         }
 
         btnSubmit.setOnClickListener(v -> trySubmit());
-        btnCamera.setOnClickListener(v -> launchCamera());
         inputAnswer.setOnEditorActionListener((tv, action, event) -> {
             if (action == EditorInfo.IME_ACTION_DONE || action == EditorInfo.IME_ACTION_GO) {
                 trySubmit();
@@ -172,11 +146,6 @@ public class AlarmRingActivity extends AppCompatActivity {
         txtTypeLabel.setText(ch.labelRes);
         txtFeedback.setVisibility(View.INVISIBLE);
 
-        // Reset photo state
-        photoCaptured = false;
-        imgPhotoPreview.setVisibility(View.GONE);
-        imgPhotoPreview.setImageDrawable(null);
-
         // Configure per type
         switch (ch.type) {
             case MATH:
@@ -190,7 +159,6 @@ public class AlarmRingActivity extends AppCompatActivity {
                 inputAnswer.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
                 inputAnswer.setMaxLines(1);
                 inputAnswer.setText("");
-                btnCamera.setVisibility(View.GONE);
                 btnSubmit.setEnabled(true);
                 btnSubmit.setText(R.string.submit);
                 break;
@@ -203,7 +171,6 @@ public class AlarmRingActivity extends AppCompatActivity {
                 inputAnswer.setInputType(InputType.TYPE_CLASS_TEXT);
                 inputAnswer.setMaxLines(2);
                 inputAnswer.setText("");
-                btnCamera.setVisibility(View.GONE);
                 btnSubmit.setEnabled(true);
                 btnSubmit.setText(R.string.submit);
                 break;
@@ -218,38 +185,12 @@ public class AlarmRingActivity extends AppCompatActivity {
                         | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 inputAnswer.setMaxLines(6);
                 inputAnswer.setText("");
-                btnCamera.setVisibility(View.GONE);
                 btnSubmit.setEnabled(true);
                 btnSubmit.setText(R.string.submit);
                 break;
-            case PHOTO:
-                txtPromptShort.setVisibility(View.VISIBLE);
-                txtPromptShort.setText(ch.prompt);
-                txtPromptShort.setTextAppearance(
-                        com.google.android.material.R.style.TextAppearance_Material3_HeadlineSmall);
-                txtPromptLong.setVisibility(View.GONE);
-                inputLayout.setVisibility(View.GONE);
-                btnCamera.setVisibility(View.VISIBLE);
-                btnCamera.setText(R.string.challenge_camera_button);
-                btnSubmit.setEnabled(false);
-                btnSubmit.setText(R.string.submit);
-                break;
         }
 
-        if (ch.type != Challenge.Type.PHOTO) {
-            inputAnswer.requestFocus();
-        }
-    }
-
-    private void launchCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        try {
-            cameraLauncher.launch(intent);
-        } catch (Exception e) {
-            // No camera app — let the user "pass" so they're not bricked.
-            photoCaptured = true;
-            btnSubmit.setEnabled(true);
-        }
+        inputAnswer.requestFocus();
     }
 
     private void trySubmit() {
@@ -278,10 +219,6 @@ public class AlarmRingActivity extends AppCompatActivity {
                 if (!ok) { wrong(R.string.challenge_match_too_low); return; }
                 break;
             }
-            case PHOTO:
-                ok = photoCaptured;
-                if (!ok) return; // submit is disabled in this case anyway
-                break;
             default:
                 ok = false;
         }

@@ -72,26 +72,33 @@ public class MathProblemGenerator {
     }
 
     private MathProblem destroyer() {
-        int form = random.nextInt(3);
+        int form = random.nextInt(4);
         switch (form) {
             case 0: {
-                int a = randRange(15, 39);
-                int b = randRange(6, 14);
-                int c = randRange(10, 80);
-                return new MathProblem(a + " × " + b + " + " + c, a * b + c);
+                int a = randRange(15, 45);
+                int b = randRange(7, 15);
+                int c = randRange(15, 45);
+                int d = randRange(7, 15);
+                return new MathProblem(a + " × " + b + " + " + c + " × " + d, a * b + c * d);
             }
             case 1: {
-                int b = randRange(7, 17);
-                int q = randRange(7, 17);
-                int a = b * q;
-                int c = randRange(20, 200);
-                return new MathProblem("(" + a + " ÷ " + b + ") + " + c, q + c);
+                int a = randRange(100, 999);
+                int b = randRange(100, 999);
+                int c = randRange(100, 999);
+                return new MathProblem(a + " + " + b + " − " + c, a + b - c);
+            }
+            case 2: {
+                int a = randRange(11, 19);
+                int b = randRange(11, 19);
+                int c = randRange(11, 19);
+                return new MathProblem(a + " × " + b + " × " + c, a * b * c);
             }
             default: {
-                int a = randRange(20, 99);
-                int b = randRange(20, 99);
-                int c = randRange(2, 11);
-                return new MathProblem("(" + a + " + " + b + ") × " + c, (a + b) * c);
+                int a = randRange(25, 99);
+                int b = randRange(25, 99);
+                int c = randRange(3, 12);
+                int d = randRange(10, 100);
+                return new MathProblem("(" + a + " + " + b + ") × " + c + " − " + d, (a + b) * c - d);
             }
         }
     }
