@@ -77,6 +77,7 @@ public class AlarmRingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        com.shen.alarmiq.AlarmiqApp.applySavedTheme(this);
         super.onCreate(savedInstanceState);
 
         getWindow().addFlags(

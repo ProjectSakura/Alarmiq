@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AlarmiqApp.applySavedTheme(this);
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -59,21 +60,33 @@ public class MainActivity extends AppCompatActivity {
         ImageButton btnToggle = findViewById(R.id.btnThemeToggle);
         if (btnToggle == null) return;
 
+        // Determine if we are currently in dark mode (either explicitly or via system)
         int currentMode = AppCompatDelegate.getDefaultNightMode();
-        boolean isDark = currentMode == AppCompatDelegate.MODE_NIGHT_YES ||
-                (currentMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM &&
-                        (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
-                                == android.content.res.Configuration.UI_MODE_NIGHT_YES);
+        boolean isDark;
+        if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
+            isDark = true;
+        } else if (currentMode == AppCompatDelegate.MODE_NIGHT_NO) {
+            isDark = false;
+        } else {
+            // MODE_NIGHT_FOLLOW_SYSTEM or MODE_NIGHT_UNSPECIFIED
+            isDark = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        }
 
         btnToggle.setImageResource(isDark ? R.drawable.ic_sun : R.drawable.ic_moon);
 
         btnToggle.setOnClickListener(v -> {
+            // Toggle explicitly between YES and NO
             int newMode = isDark ? AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES;
-            AppCompatDelegate.setDefaultNightMode(newMode);
+            
+            // Save preference FIRST
             getSharedPreferences(AlarmiqApp.PREFS_SETTINGS, MODE_PRIVATE)
                     .edit()
                     .putInt(AlarmiqApp.KEY_THEME, newMode)
                     .apply();
+            
+            // Then apply it. Activity will be recreated automatically.
+            AppCompatDelegate.setDefaultNightMode(newMode);
         });
     }
 

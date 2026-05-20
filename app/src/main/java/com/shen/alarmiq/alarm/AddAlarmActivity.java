@@ -92,6 +92,7 @@ public class AddAlarmActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        com.shen.alarmiq.AlarmiqApp.applySavedTheme(this);
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_alarm);
