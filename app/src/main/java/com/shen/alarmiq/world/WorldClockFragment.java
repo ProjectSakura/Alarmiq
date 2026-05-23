@@ -109,19 +109,19 @@ public class WorldClockFragment extends Fragment {
     }
 
     private void refresh() {
-        List<String> ids = storage.getAll();
-        adapter.submit(ids);
-        boolean empty = ids.isEmpty();
+        List<SavedCity> items = storage.getAll();
+        adapter.submit(items);
+        boolean empty = items.isEmpty();
         recycler.setVisibility(empty ? View.GONE : View.VISIBLE);
         emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
-    private void onCityClick(String zoneId, View anchor) {
+    private void onCityClick(SavedCity city, View anchor) {
         PopupMenu menu = new PopupMenu(requireContext(), anchor);
         menu.getMenu().add(0, 1, 0, R.string.remove_city);
         menu.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == 1) {
-                storage.remove(zoneId);
+                storage.remove(city);
                 refresh();
                 return true;
             }
@@ -144,7 +144,7 @@ public class WorldClockFragment extends Fragment {
                 .create();
 
         CityPickAdapter pickAdapter = new CityPickAdapter(city -> {
-            storage.add(city.zoneId);
+            storage.add(city.zoneId, city.displayName);
             refresh();
             dialog.dismiss();
         });

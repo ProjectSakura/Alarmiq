@@ -21,29 +21,54 @@ public class WorldClockStorage {
                 .getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    public List<String> getAll() {
+    public List<SavedCity> getAll() {
         String raw = prefs.getString(KEY_IDS, "");
         if (raw.isEmpty()) return new ArrayList<>();
-        return new ArrayList<>(Arrays.asList(raw.split("\\|")));
+        
+        String[] parts = raw.split("\\|");
+        List<SavedCity> results = new ArrayList<>();
+        boolean needsRewrite = false;
+
+        for (String p : parts) {
+            SavedCity sc = SavedCity.deserialize(p);
+            if (sc != null) {
+                results.add(sc);
+                // If it was an old format (didn't contain ;;), we should rewrite it eventually
+                if (!p.contains(";;")) {
+                    needsRewrite = true;
+                }
+            }
+        }
+
+        if (needsRewrite) {
+            save(results);
+        }
+
+        return results;
     }
 
-    public void add(String zoneId) {
-        Set<String> set = new LinkedHashSet<>(getAll());
-        set.add(zoneId);
-        save(new ArrayList<>(set));
+    public void add(String zoneId, String cityName) {
+        List<SavedCity> list = getAll();
+        SavedCity newItem = new SavedCity(zoneId, cityName);
+        
+        // Avoid exact duplicates (same city name and zone)
+        if (!list.contains(newItem)) {
+            list.add(newItem);
+            save(list);
+        }
     }
 
-    public void remove(String zoneId) {
-        List<String> list = getAll();
-        list.remove(zoneId);
+    public void remove(SavedCity city) {
+        List<SavedCity> list = getAll();
+        list.remove(city);
         save(list);
     }
 
-    public void save(List<String> ids) {
+    public void save(List<SavedCity> cities) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < ids.size(); i++) {
+        for (int i = 0; i < cities.size(); i++) {
             if (i > 0) sb.append('|');
-            sb.append(ids.get(i));
+            sb.append(cities.get(i).serialize());
         }
         prefs.edit().putString(KEY_IDS, sb.toString()).apply();
     }

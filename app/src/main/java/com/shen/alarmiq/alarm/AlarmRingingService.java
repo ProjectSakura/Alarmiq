@@ -48,6 +48,30 @@ public class AlarmRingingService extends Service {
         public void run() {
             restoreAlarmVolume();
             ensureMediaPlayerRunning();
+            
+            // If the activity isn't active, periodically re-trigger it.
+            if (!AlarmRingActivity.isActive) {
+                Alarm alarm = new AlarmStorage(AlarmRingingService.this).getById(currentAlarmId);
+                String label = (alarm != null && alarm.label != null && !alarm.label.trim().isEmpty())
+                        ? alarm.label
+                        : getString(R.string.alarm_notification_title);
+                
+                int fgType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                        ? ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                        : 0;
+                
+                // Force a total refresh of the notification to re-trigger fullScreenIntent
+                stopForeground(false);
+                ServiceCompat.startForeground(AlarmRingingService.this, 
+                        NOTIFICATION_ID, 
+                        buildNotification(currentAlarmId, label), 
+                        fgType);
+                
+                // Use AlarmManager to force-launch the activity. 
+                // This often bypasses background start restrictions more reliably than startActivity().
+                forceLaunchActivity(currentAlarmId);
+            }
+            
             enforceHandler.postDelayed(this, ENFORCE_INTERVAL_MS);
         }
     };
@@ -173,8 +197,11 @@ public class AlarmRingingService extends Service {
         open.putExtra(AlarmScheduler.EXTRA_ALARM_ID, alarmId);
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
+        // Use a unique request code based on current time to force the system 
+        // to see this as a fresh interrupt event every time.
+        int requestCode = (int) (System.currentTimeMillis() & 0x7fffffff);
         PendingIntent contentPi = PendingIntent.getActivity(this,
-                (int) (alarmId & 0x7fffffff),
+                requestCode,
                 open,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
@@ -199,6 +226,30 @@ public class AlarmRingingService extends Service {
                 | Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
         startActivity(open);
+    }
+
+    private void forceLaunchActivity(long alarmId) {
+        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+        if (am == null) return;
+
+        Intent open = new Intent(this, AlarmRingActivity.class);
+        open.putExtra(AlarmScheduler.EXTRA_ALARM_ID, alarmId);
+        open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK 
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP 
+                | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
+
+        int requestCode = (int) (System.currentTimeMillis() & 0x7fffffff);
+        PendingIntent pi = PendingIntent.getActivity(this,
+                requestCode,
+                open,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        // Schedule an "alarm" to fire in 100ms that launches the activity.
+        // setAlarmClock is the most aggressive way to bypass background restrictions.
+        long triggerAt = System.currentTimeMillis() + 100;
+        try {
+            am.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerAt, pi), pi);
+        } catch (SecurityException ignored) {}
     }
 
     private void startRingtone(Alarm alarm) {

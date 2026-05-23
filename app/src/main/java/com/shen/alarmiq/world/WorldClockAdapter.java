@@ -22,10 +22,10 @@ import java.util.concurrent.TimeUnit;
 public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.VH> {
 
     public interface Listener {
-        void onCityClick(String zoneId, View anchor);
+        void onCityClick(SavedCity city, View anchor);
     }
 
-    private final List<String> ids = new ArrayList<>();
+    private final List<SavedCity> items = new ArrayList<>();
     private final boolean is24h;
     private final Listener listener;
 
@@ -35,20 +35,20 @@ public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.VH
         setHasStableIds(true);
     }
 
-    public void submit(List<String> newIds) {
-        ids.clear();
-        ids.addAll(newIds);
+    public void submit(List<SavedCity> newItems) {
+        items.clear();
+        items.addAll(newItems);
         notifyDataSetChanged();
     }
 
     /** Re-render times in place without a full notifyDataSetChanged. */
     public void refreshTimes() {
-        notifyItemRangeChanged(0, ids.size());
+        notifyItemRangeChanged(0, items.size());
     }
 
     @Override
     public long getItemId(int position) {
-        return ids.get(position).hashCode();
+        return items.get(position).hashCode();
     }
 
     @NonNull
@@ -61,12 +61,12 @@ public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.VH
 
     @Override
     public void onBindViewHolder(@NonNull VH h, int position) {
-        h.bind(ids.get(position));
+        h.bind(items.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return ids.size();
+        return items.size();
     }
 
     class VH extends RecyclerView.ViewHolder {
@@ -81,12 +81,12 @@ public class WorldClockAdapter extends RecyclerView.Adapter<WorldClockAdapter.VH
             txtTime = v.findViewById(R.id.txtTime);
         }
 
-        void bind(String zoneId) {
-            TimeZone zone = Cities.timeZoneFor(zoneId);
-            txtCity.setText(Cities.displayNameForZone(zoneId));
+        void bind(SavedCity city) {
+            TimeZone zone = Cities.timeZoneFor(city.zoneId);
+            txtCity.setText(city.cityName);
             txtTime.setText(formatTime(zone, is24h));
             txtOffset.setText(formatOffset(itemView, zone));
-            itemView.setOnClickListener(v -> listener.onCityClick(zoneId, v));
+            itemView.setOnClickListener(v -> listener.onCityClick(city, v));
         }
     }
 
