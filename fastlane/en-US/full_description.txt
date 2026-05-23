@@ -1,0 +1,11 @@
+Alarmiq is a modern, challenge-based alarm clock that ensures you are fully awake before you can dismiss your alarm.
+
+Features:
+- Multiple difficulty levels: None, Normal, Hard, Nightmare, and Punishment.
+- Diverse challenges: Math problems, reverse typing, and paragraph transcription.
+- Full lockdown mode: Prevent alarm bypass with screen pinning and aggressive re-launching.
+- World Clock: Stay updated with localized times for over 400 cities globally, including extensive support for Indian cities.
+- Stopwatch and Timer: Built-in productivity tools.
+- Open Source and Free: No ads, no tracking, and fully open-source.
+
+Stop snoozing your life away and wake up the right way with Alarmiq!

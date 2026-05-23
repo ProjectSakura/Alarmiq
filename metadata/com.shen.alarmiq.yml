@@ -1,0 +1,34 @@
+Categories:
+  - Time
+License: Apache-2.0
+SourceCode: https://github.com/ProjectSakura/Alarmiq
+IssueTracker: https://github.com/ProjectSakura/Alarmiq/issues
+Donate: https://buymeacoffee.com/lBUDKgM
+
+Summary: Challenge-based alarm clock with world clock
+Description: |-
+  Alarmiq is a modern, challenge-based alarm clock that ensures you are fully awake before you can dismiss your alarm.
+
+  Features:
+  - Multiple difficulty levels: None, Normal, Hard, Nightmare, and Punishment.
+  - Diverse challenges: Math problems, reverse typing, and paragraph transcription.
+  - Full lockdown mode: Prevent alarm bypass with screen pinning and aggressive re-launching.
+  - World Clock: Stay updated with localized times for over 400 cities globally.
+  - Stopwatch and Timer: Built-in productivity tools.
+  - Open Source and Free: No ads, no tracking, and fully open-source.
+
+RepoType: git
+Repo: https://github.com/ProjectSakura/Alarmiq
+
+Builds:
+  - versionName: 1.0
+    versionCode: 1
+    commit: 'v1.0'
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags
+CurrentVersion: 1.0
+CurrentVersionCode: 1
