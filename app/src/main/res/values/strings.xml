@@ -104,4 +104,11 @@
     <string name="time">Time</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>
+
+    <!-- About Dialog -->
+    <string name="about_title">About Alarmiq</string>
+    <string name="about_message">Alarmiq is made with love by a small independent developer. It is totally open-source and free to use for everyone!</string>
+    <string name="source_code">Source Code</string>
+    <string name="donate">Donate</string>
+    <string name="about">About</string>
 </resources>

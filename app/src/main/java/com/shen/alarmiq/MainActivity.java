@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
@@ -16,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.shen.alarmiq.alarm.AlarmFragment;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupThemeToggle();
+        setupAboutDialog();
 
         ViewPager2 pager = findViewById(R.id.pager);
         if (pager != null) {
@@ -54,6 +57,32 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationsLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
         }
+    }
+
+    private void setupAboutDialog() {
+        View btnAbout = findViewById(R.id.btnAbout);
+        if (btnAbout == null) return;
+
+        btnAbout.setOnClickListener(v -> {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.about_title)
+                    .setMessage(R.string.about_message)
+                    .setPositiveButton(R.string.donate, (dialog, which) -> {
+                        openUrl("https://buymeacoffee.com/lBUDKgM");
+                    })
+                    .setNeutralButton(R.string.source_code, (dialog, which) -> {
+                        openUrl("https://github.com/ProjectSakura/Alarmiq");
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
+        });
+    }
+
+    private void openUrl(String url) {
+        try {
+            android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url));
+            startActivity(intent);
+        } catch (Exception ignored) {}
     }
 
     private void setupThemeToggle() {

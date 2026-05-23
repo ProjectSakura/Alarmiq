@@ -21,6 +21,19 @@
             app:title="@string/app_name"
             app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge">
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAbout"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="4dp"
+                android:text="@string/about"
+                android:textColor="?attr/colorPrimary"
+                app:icon="@drawable/ic_help"
+                app:iconSize="18dp"
+                app:iconTint="?attr/colorPrimary" />
+
             <ImageButton
                 android:id="@+id/btnThemeToggle"
                 android:layout_width="48dp"
