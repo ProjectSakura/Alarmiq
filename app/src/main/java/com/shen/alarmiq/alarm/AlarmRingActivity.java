@@ -56,6 +56,12 @@ public class AlarmRingActivity extends AppCompatActivity {
     private MaterialButton btnSubmit;
     private LinearProgressIndicator progressBar;
 
+    private View cardChallenge;
+    private View layoutNoChallenge;
+    private View txtSolveHint;
+    private MaterialButton btnNoChallengeDismiss;
+    private MaterialButton btnNoChallengeSnooze;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         com.shen.alarmiq.AlarmiqApp.applySavedTheme(this);
@@ -73,10 +79,17 @@ public class AlarmRingActivity extends AppCompatActivity {
                     | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         }
 
-        // Lockdown: Prevent dismissal via task switching if possible
-        try {
-            startLockTask();
-        } catch (Exception ignored) {}
+        alarmId = getIntent().getLongExtra(AlarmScheduler.EXTRA_ALARM_ID, -1L);
+        alarm = new AlarmStorage(this).getById(alarmId);
+        difficulty = alarm != null ? alarm.difficulty : Difficulty.NORMAL;
+        challenges = new ChallengeGenerator().generate(difficulty);
+
+        if (difficulty != Difficulty.NONE) {
+            // Lockdown: Prevent dismissal via task switching if possible
+            try {
+                startLockTask();
+            } catch (Exception ignored) {}
+        }
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_alarm_ring);
@@ -90,11 +103,6 @@ public class AlarmRingActivity extends AppCompatActivity {
             return insets;
         });
 
-        alarmId = getIntent().getLongExtra(AlarmScheduler.EXTRA_ALARM_ID, -1L);
-        alarm = new AlarmStorage(this).getById(alarmId);
-        difficulty = alarm != null ? alarm.difficulty : Difficulty.NORMAL;
-        challenges = new ChallengeGenerator().generate(difficulty);
-
         txtRingTime = findViewById(R.id.txtRingTime);
         txtRingLabel = findViewById(R.id.txtRingLabel);
         txtProgress = findViewById(R.id.txtProgress);
@@ -107,6 +115,12 @@ public class AlarmRingActivity extends AppCompatActivity {
         btnSubmit = findViewById(R.id.btnSubmit);
         progressBar = findViewById(R.id.progressBar);
         progressBar.setMax(challenges.size());
+
+        cardChallenge = findViewById(R.id.cardChallenge);
+        layoutNoChallenge = findViewById(R.id.layoutNoChallenge);
+        txtSolveHint = findViewById(R.id.txtSolveHint);
+        btnNoChallengeDismiss = findViewById(R.id.btnNoChallengeDismiss);
+        btnNoChallengeSnooze = findViewById(R.id.btnNoChallengeSnooze);
 
         txtRingTime.setText(formatNow());
         if (alarm != null && alarm.label != null && !alarm.label.trim().isEmpty()) {
@@ -146,10 +160,12 @@ public class AlarmRingActivity extends AppCompatActivity {
         isActive = true;
         hideSystemUI();
         
-        // Lockdown: Attempt to lock the task again if it was somehow unlocked
-        try {
-            startLockTask();
-        } catch (Exception ignored) {}
+        if (difficulty != Difficulty.NONE) {
+            // Lockdown: Attempt to lock the task again if it was somehow unlocked
+            try {
+                startLockTask();
+            } catch (Exception ignored) {}
+        }
 
         if (isInMultiWindowMode()) {
             relaunchMe();
@@ -166,7 +182,7 @@ public class AlarmRingActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         isActive = false;
-        if (!isFinishing()) {
+        if (!isFinishing() && difficulty != Difficulty.NONE) {
             relaunchMe();
         }
     }
@@ -174,7 +190,7 @@ public class AlarmRingActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus && !isFinishing()) {
+        if (!hasFocus && !isFinishing() && difficulty != Difficulty.NONE) {
             // Focus lost (likely notification shade or system dialog).
             // Relaunch to pull back focus.
             new Handler(Looper.getMainLooper()).postDelayed(this::relaunchMe, 500);
@@ -185,15 +201,19 @@ public class AlarmRingActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         isActive = false;
-        try {
-            stopLockTask();
-        } catch (Exception ignored) {}
+        if (difficulty != Difficulty.NONE) {
+            try {
+                stopLockTask();
+            } catch (Exception ignored) {}
+        }
     }
 
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
-        relaunchMe();
+        if (difficulty != Difficulty.NONE) {
+            relaunchMe();
+        }
     }
 
     private void relaunchMe() {
@@ -232,6 +252,20 @@ public class AlarmRingActivity extends AppCompatActivity {
     }
 
     private void renderChallenge() {
+        if (difficulty == Difficulty.NONE) {
+            cardChallenge.setVisibility(View.GONE);
+            txtSolveHint.setVisibility(View.GONE);
+            layoutNoChallenge.setVisibility(View.VISIBLE);
+            
+            btnNoChallengeDismiss.setOnClickListener(v -> dismissAlarm());
+            btnNoChallengeSnooze.setOnClickListener(v -> snoozeAlarm());
+            return;
+        }
+
+        cardChallenge.setVisibility(View.VISIBLE);
+        txtSolveHint.setVisibility(View.VISIBLE);
+        layoutNoChallenge.setVisibility(View.GONE);
+
         Challenge ch = challenges.get(challengeIndex);
         txtProgress.setText(getString(R.string.problem_progress,
                 challengeIndex + 1, challenges.size()));
@@ -337,6 +371,13 @@ public class AlarmRingActivity extends AppCompatActivity {
         } else {
             renderChallenge();
         }
+    }
+
+    private void snoozeAlarm() {
+        if (alarm != null) {
+            new AlarmScheduler(this).snooze(alarm);
+        }
+        dismissAlarm();
     }
 
     private void dismissAlarm() {

@@ -24,7 +24,7 @@ public class ChallengeGenerator {
 
     public List<Challenge> generate(Difficulty difficulty) {
         switch (difficulty) {
-            case EASY:    return repeatedMath(Difficulty.EASY, 3);
+            case NONE:    return new ArrayList<>();
             case NORMAL:  return repeatedMath(Difficulty.NORMAL, 3);
             case HARD:    return repeatedMath(Difficulty.HARD, 3);
             case NIGHTMARE: return nightmare();

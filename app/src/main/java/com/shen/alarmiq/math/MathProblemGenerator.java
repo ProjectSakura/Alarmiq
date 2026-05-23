@@ -8,23 +8,12 @@ public class MathProblemGenerator {
 
     public MathProblem next(Difficulty difficulty) {
         switch (difficulty) {
-            case EASY: return easy();
+            case NONE: return null;
             case HARD: return hard();
             case NIGHTMARE:
             case PUNISHMENT: return destroyer();
             case NORMAL:
             default: return normal();
-        }
-    }
-
-    private MathProblem easy() {
-        int a = randRange(2, 9);
-        int b = randRange(2, 9);
-        if (random.nextBoolean()) {
-            return new MathProblem(a + " + " + b, a + b);
-        } else {
-            if (a < b) { int t = a; a = b; b = t; }
-            return new MathProblem(a + " − " + b, a - b);
         }
     }
 

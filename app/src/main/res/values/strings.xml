@@ -12,12 +12,12 @@
     <string name="label_hint">Label</string>
     <string name="label_default">Alarm</string>
     <string name="difficulty">Wake-up challenge</string>
-    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_none">None</string>
     <string name="difficulty_normal">Normal</string>
     <string name="difficulty_hard">Hard</string>
     <string name="difficulty_nightmare">Nightmare</string>
     <string name="difficulty_punishment">Punishment</string>
-    <string name="difficulty_easy_desc">Single-digit addition</string>
+    <string name="difficulty_none_desc">No challenges · Traditional alarm</string>
     <string name="difficulty_normal_desc">Two-digit add &amp; subtract</string>
     <string name="difficulty_hard_desc">Multiplication and division</string>
     <string name="difficulty_nightmare_desc">Complex math &amp; typing · 5 challenges</string>

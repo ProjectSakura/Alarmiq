@@ -162,7 +162,42 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- No-Challenge Container -->
+        <LinearLayout
+            android:id="@+id/layoutNoChallenge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginHorizontal="24dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/txtRingLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_max="600dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNoChallengeDismiss"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:text="@string/dismiss"
+                android:textSize="24sp"
+                app:cornerRadius="40dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNoChallengeSnooze"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/snooze"
+                android:textSize="24sp"
+                app:cornerRadius="40dp" />
+        </LinearLayout>
+
         <TextView
+            android:id="@+id/txtSolveHint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"

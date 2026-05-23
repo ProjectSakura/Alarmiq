@@ -33,6 +33,14 @@ public class AlarmScheduler {
         return trigger;
     }
 
+    public long snooze(Alarm alarm) {
+        long trigger = System.currentTimeMillis() + (5 * 60 * 1000L);
+        PendingIntent pi = pendingIntentFor(alarm.id);
+        AlarmManager.AlarmClockInfo info = new AlarmManager.AlarmClockInfo(trigger, pi);
+        alarmManager.setAlarmClock(info, pi);
+        return trigger;
+    }
+
     public void cancel(long alarmId) {
         PendingIntent pi = pendingIntentFor(alarmId);
         alarmManager.cancel(pi);

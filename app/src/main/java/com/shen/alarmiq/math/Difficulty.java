@@ -3,7 +3,7 @@ package com.shen.alarmiq.math;
 import com.shen.alarmiq.R;
 
 public enum Difficulty {
-    EASY(R.string.difficulty_easy, R.string.difficulty_easy_desc, 3),
+    NONE(R.string.difficulty_none, R.string.difficulty_none_desc, 0),
     NORMAL(R.string.difficulty_normal, R.string.difficulty_normal_desc, 3),
     HARD(R.string.difficulty_hard, R.string.difficulty_hard_desc, 3),
     NIGHTMARE(R.string.difficulty_nightmare, R.string.difficulty_nightmare_desc, 5),

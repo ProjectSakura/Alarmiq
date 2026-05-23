@@ -26,6 +26,7 @@ import androidx.core.app.ServiceCompat;
 
 import com.shen.alarmiq.AlarmiqApp;
 import com.shen.alarmiq.R;
+import com.shen.alarmiq.math.Difficulty;
 
 public class AlarmRingingService extends Service {
 
@@ -52,24 +53,28 @@ public class AlarmRingingService extends Service {
             // If the activity isn't active, periodically re-trigger it.
             if (!AlarmRingActivity.isActive) {
                 Alarm alarm = new AlarmStorage(AlarmRingingService.this).getById(currentAlarmId);
-                String label = (alarm != null && alarm.label != null && !alarm.label.trim().isEmpty())
-                        ? alarm.label
-                        : getString(R.string.alarm_notification_title);
                 
-                int fgType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-                        ? ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                        : 0;
-                
-                // Force a total refresh of the notification to re-trigger fullScreenIntent
-                stopForeground(false);
-                ServiceCompat.startForeground(AlarmRingingService.this, 
-                        NOTIFICATION_ID, 
-                        buildNotification(currentAlarmId, label), 
-                        fgType);
-                
-                // Use AlarmManager to force-launch the activity. 
-                // This often bypasses background start restrictions more reliably than startActivity().
-                forceLaunchActivity(currentAlarmId);
+                // For "None" mode, we don't aggressively force the activity back to the front 
+                // every 1.5s if it's already hidden, as the user might be using the phone.
+                if (alarm != null && alarm.difficulty != Difficulty.NONE) {
+                    String label = (alarm.label != null && !alarm.label.trim().isEmpty())
+                            ? alarm.label
+                            : getString(R.string.alarm_notification_title);
+                    
+                    int fgType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                            ? ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                            : 0;
+                    
+                    // Force a total refresh of the notification to re-trigger fullScreenIntent
+                    stopForeground(false);
+                    ServiceCompat.startForeground(AlarmRingingService.this, 
+                            NOTIFICATION_ID, 
+                            buildNotification(currentAlarmId, label, false), 
+                            fgType);
+                    
+                    // Use AlarmManager to force-launch the activity. 
+                    forceLaunchActivity(currentAlarmId);
+                }
             }
             
             enforceHandler.postDelayed(this, ENFORCE_INTERVAL_MS);
@@ -111,7 +116,7 @@ public class AlarmRingingService extends Service {
                 ? ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                 : 0;
         ServiceCompat.startForeground(this, NOTIFICATION_ID,
-                buildNotification(alarmId, label), fgType);
+                buildNotification(alarmId, label, alarm != null && alarm.difficulty == Difficulty.NONE), fgType);
         acquireWakeLock();
         startRingtone(alarm);
         startVibration();
@@ -120,7 +125,9 @@ public class AlarmRingingService extends Service {
         rescheduleIfRepeating(alarm);
         enforceHandler.removeCallbacks(enforce);
         enforceHandler.post(enforce);
-        scheduleAntiCheatGuard();
+        if (alarm != null && alarm.difficulty != Difficulty.NONE) {
+            scheduleAntiCheatGuard();
+        }
         return START_STICKY;
     }
 
@@ -192,7 +199,7 @@ public class AlarmRingingService extends Service {
         }
     }
 
-    private android.app.Notification buildNotification(long alarmId, String label) {
+    private android.app.Notification buildNotification(long alarmId, String label, boolean isNoChallenge) {
         Intent open = new Intent(this, AlarmRingActivity.class);
         open.putExtra(AlarmScheduler.EXTRA_ALARM_ID, alarmId);
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -205,7 +212,7 @@ public class AlarmRingingService extends Service {
                 open,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        return new NotificationCompat.Builder(this, AlarmiqApp.ALARM_CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, AlarmiqApp.ALARM_CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                 .setContentTitle(label)
                 .setContentText(getString(R.string.alarm_notification_text))
@@ -215,8 +222,25 @@ public class AlarmRingingService extends Service {
                 .setAutoCancel(false)
                 .setFullScreenIntent(contentPi, true)
                 .setContentIntent(contentPi)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .build();
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+        if (isNoChallenge) {
+            // Traditional buttons only for "None" mode
+            Intent dismissIntent = new Intent(this, AlarmReceiver.class);
+            dismissIntent.setAction(AlarmReceiver.ACTION_DISMISS);
+            dismissIntent.putExtra(AlarmScheduler.EXTRA_ALARM_ID, alarmId);
+            PendingIntent dismissPi = PendingIntent.getBroadcast(this, 1, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+            Intent snoozeIntent = new Intent(this, AlarmReceiver.class);
+            snoozeIntent.setAction(AlarmReceiver.ACTION_SNOOZE);
+            snoozeIntent.putExtra(AlarmScheduler.EXTRA_ALARM_ID, alarmId);
+            PendingIntent snoozePi = PendingIntent.getBroadcast(this, 2, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+            builder.addAction(0, getString(R.string.snooze), snoozePi);
+            builder.addAction(0, getString(R.string.dismiss), dismissPi);
+        }
+
+        return builder.build();
     }
 
     private void launchRingActivity(long alarmId) {
