@@ -4,6 +4,8 @@ import android.app.KeyguardManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.text.format.DateFormat;
 import android.view.View;
@@ -70,6 +72,11 @@ public class AlarmRingActivity extends AppCompatActivity {
                     | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                     | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         }
+
+        // Lockdown: Prevent dismissal via task switching if possible
+        try {
+            startLockTask();
+        } catch (Exception ignored) {}
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_alarm_ring);
@@ -138,11 +145,14 @@ public class AlarmRingActivity extends AppCompatActivity {
         super.onResume();
         isActive = true;
         hideSystemUI();
+        
+        // Lockdown: Attempt to lock the task again if it was somehow unlocked
+        try {
+            startLockTask();
+        } catch (Exception ignored) {}
+
         if (isInMultiWindowMode()) {
-            // Force out of multi-window if possible, or at least relaunch as single instance full screen
-            Intent intent = new Intent(this, AlarmRingActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+            relaunchMe();
         }
     }
 
@@ -157,11 +167,17 @@ public class AlarmRingActivity extends AppCompatActivity {
         super.onStop();
         isActive = false;
         if (!isFinishing()) {
-            // Activity was hidden but not finished (e.g. Home button bypass):
-            // Pull it back immediately.
-            Intent intent = new Intent(this, AlarmRingActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
+            relaunchMe();
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (!hasFocus && !isFinishing()) {
+            // Focus lost (likely notification shade or system dialog).
+            // Relaunch to pull back focus.
+            new Handler(Looper.getMainLooper()).postDelayed(this::relaunchMe, 500);
         }
     }
 
@@ -169,15 +185,25 @@ public class AlarmRingActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         isActive = false;
+        try {
+            stopLockTask();
+        } catch (Exception ignored) {}
     }
 
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
-        // User pressed Home or Recents: aggressively pull them back.
-        Intent intent = new Intent(this, AlarmRingActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
+        relaunchMe();
+    }
+
+    private void relaunchMe() {
+        if (!isFinishing()) {
+            Intent intent = new Intent(this, AlarmRingActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK 
+                    | Intent.FLAG_ACTIVITY_SINGLE_TOP 
+                    | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
+        }
     }
 
     private void hideSystemUI() {
@@ -314,6 +340,9 @@ public class AlarmRingActivity extends AppCompatActivity {
     }
 
     private void dismissAlarm() {
+        try {
+            stopLockTask();
+        } catch (Exception ignored) {}
         stopService(new Intent(this, AlarmRingingService.class));
         finishAndRemoveTask();
     }
