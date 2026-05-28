@@ -8,6 +8,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.shen.alarmiq.alarm.AlarmFragment;
 import com.shen.alarmiq.stopwatch.StopwatchFragment;
 import com.shen.alarmiq.timer.TimerFragment;
+import com.shen.alarmiq.standby.StandbySettingsFragment;
 import com.shen.alarmiq.world.WorldClockFragment;
 
 public class MainPagerAdapter extends FragmentStateAdapter {
@@ -23,6 +24,7 @@ public class MainPagerAdapter extends FragmentStateAdapter {
             case 1: return new StopwatchFragment();
             case 2: return new TimerFragment();
             case 3: return new WorldClockFragment();
+            case 4: return new StandbySettingsFragment();
             case 0:
             default: return new AlarmFragment();
         }
@@ -30,6 +32,6 @@ public class MainPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 4;
+        return 5;
     }
 }

@@ -21,5 +21,10 @@ public class BootReceiver extends BroadcastReceiver {
                 scheduler.schedule(a);
             }
         }
+
+        // Start StandbyService if enabled
+        if (context.getApplicationContext() instanceof AlarmiqApp) {
+            ((AlarmiqApp) context.getApplicationContext()).startStandbyServiceIfEnabled();
+        }
     }
 }

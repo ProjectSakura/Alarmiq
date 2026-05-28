@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.TURN_SCREEN_ON" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:name=".AlarmiqApp"
@@ -92,6 +93,37 @@
             android:name=".timer.TimerSoundService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".standby.StandbyService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="Standby mode monitoring for power connection events." />
+        </service>
+
+        <activity
+            android:name=".standby.StandbyActivity"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@style/Theme.Alarmiq.Standby" />
+
+        <receiver
+            android:name=".standby.StandbyReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.POWER_CONNECTED" />
+                <action android:name="android.intent.action.POWER_DISCONNECTED" />
+                <action android:name="android.intent.action.DOCK_EVENT" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="com.shen.alarmiq.intent.action.TRIGGER_STANDBY" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

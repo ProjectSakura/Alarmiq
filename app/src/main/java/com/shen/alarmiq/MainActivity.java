@@ -50,12 +50,27 @@ public class MainActivity extends AppCompatActivity {
         ViewPager2 pager = findViewById(R.id.pager);
         if (pager != null) {
             setupPager(pager);
+            if (getIntent().getBooleanExtra("show_standby", false)) {
+                pager.setCurrentItem(4, false);
+            }
         } else {
             setupMultiPane(savedInstanceState);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationsLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent.getBooleanExtra("show_standby", false)) {
+            ViewPager2 pager = findViewById(R.id.pager);
+            if (pager != null) {
+                pager.setCurrentItem(4, false);
+            }
         }
     }
 
@@ -122,13 +137,14 @@ public class MainActivity extends AppCompatActivity {
     private void setupPager(ViewPager2 pager) {
         TabLayout tabs = findViewById(R.id.tabs);
         pager.setAdapter(new MainPagerAdapter(this));
-        pager.setOffscreenPageLimit(3);
+        pager.setOffscreenPageLimit(4);
         new TabLayoutMediator(tabs, pager, (tab, position) -> {
             switch (position) {
                 case 0: tab.setText(R.string.tab_alarms); break;
                 case 1: tab.setText(R.string.tab_stopwatch); break;
                 case 2: tab.setText(R.string.tab_timer); break;
                 case 3: tab.setText(R.string.tab_world); break;
+                case 4: tab.setText(R.string.standby_mode); break;
             }
         }).attach();
     }

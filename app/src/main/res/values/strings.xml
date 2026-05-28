@@ -111,4 +111,29 @@
     <string name="source_code">Source Code</string>
     <string name="donate">Donate</string>
     <string name="about">About</string>
+
+    <!-- Standby Mode -->
+    <string name="standby_mode">Standby Mode</string>
+    <string name="standby_enabled">Enable Standby Mode</string>
+    <string name="standby_enabled_desc">Activates when charging and in landscape</string>
+    <string name="standby_burn_in_protection">Burn-in Protection</string>
+    <string name="standby_burn_in_protection_desc">Shifts UI slightly to protect AMOLED screens</string>
+    <string name="standby_background">Background</string>
+    <string name="standby_clock_style">Clock Style</string>
+    <string name="standby_guide_title">How to use Standby</string>
+    <string name="standby_guide_step1">1. Connect your phone to a charger.</string>
+    <string name="standby_guide_step2">2. Place the phone horizontally (landscape orientation).</string>
+    <string name="standby_guide_step3">3. Standby mode will activate automatically.</string>
+    <string name="standby_guide_step4">4. Swipe left or right to change clock styles.</string>
+    <string name="standby_guide_step5">5. Long press to customize the current style.</string>
+    <string name="standby_style_digital">Digital Clock</string>
+    <string name="standby_style_analog">Analog Clock</string>
+    <string name="standby_style_minimal">Minimal</string>
+    <string name="standby_custom_photo">Custom Photo</string>
+    <string name="standby_pick_photo">Pick from gallery</string>
+    <string name="standby_brightness">Standby Brightness</string>
+    <string name="standby_overlay_permission">Appear on top</string>
+    <string name="standby_overlay_permission_desc">Required to show Standby Mode over the lock screen</string>
+    <string name="grant_permission">Grant</string>
+    <string name="standby_preview">Preview Standby</string>
 </resources>

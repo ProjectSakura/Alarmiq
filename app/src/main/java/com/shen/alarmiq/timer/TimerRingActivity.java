@@ -24,17 +24,10 @@ public class TimerRingActivity extends AppCompatActivity {
         com.shen.alarmiq.AlarmiqApp.applySavedTheme(this);
         super.onCreate(savedInstanceState);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true);
-            setTurnScreenOn(true);
-            KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
-            if (km != null) km.requestDismissKeyguard(this, null);
-        } else {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                    | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                    | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                    | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        }
+        setShowWhenLocked(true);
+        setTurnScreenOn(true);
+        KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        if (km != null) km.requestDismissKeyguard(this, null);
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_timer_ring);

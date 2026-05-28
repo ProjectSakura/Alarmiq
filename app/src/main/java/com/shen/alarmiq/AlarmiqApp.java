@@ -12,6 +12,12 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
+
+import com.shen.alarmiq.standby.StandbyReceiver;
+
 public class AlarmiqApp extends Application {
 
     public static final String ALARM_CHANNEL_ID = "alarmiq_active_alarm";
@@ -28,6 +34,20 @@ public class AlarmiqApp extends Application {
                 new DynamicColorsOptions.Builder().build());
         createAlarmChannel();
         createTimerChannel();
+        startStandbyServiceIfEnabled();
+    }
+
+    public void startStandbyServiceIfEnabled() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_SETTINGS, MODE_PRIVATE);
+        boolean enabled = prefs.getBoolean(StandbyReceiver.KEY_STANDBY_ENABLED, true);
+        if (enabled) {
+            Intent serviceIntent = new Intent(this, com.shen.alarmiq.standby.StandbyService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+        }
     }
 
     @Override
