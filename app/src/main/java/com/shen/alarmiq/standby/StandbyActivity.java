@@ -46,6 +46,7 @@ public class StandbyActivity extends AppCompatActivity {
 
     private int currentStyle = 0; // 0: Digital, 1: Analog (Placeholder), 2: Minimal
     private GestureDetectorCompat gestureDetector;
+    private android.view.OrientationEventListener orientationEventListener;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Random random = new Random();
@@ -82,21 +83,13 @@ public class StandbyActivity extends AppCompatActivity {
         
         boolean isPreview = getIntent().getBooleanExtra("is_preview", false);
         boolean charging = isCharging();
-        int orientation = getResources().getConfiguration().orientation;
 
-        android.util.Log.d("StandbyActivity", "onCreate: isPreview=" + isPreview + ", isCharging=" + charging + ", orientation=" + orientation);
+        android.util.Log.d("StandbyActivity", "onCreate: isPreview=" + isPreview + ", isCharging=" + charging);
 
         // Initial check: if not charging, and launched from background, maybe finish?
         // Skip for preview mode.
         if (!isPreview && !charging) {
             android.util.Log.d("StandbyActivity", "Finishing: not charging and not preview");
-            finish();
-            return;
-        }
-
-        // Only allow landscape unless it's a preview
-        if (!isPreview && orientation != Configuration.ORIENTATION_LANDSCAPE) {
-            android.util.Log.d("StandbyActivity", "Finishing: not landscape and not preview");
             finish();
             return;
         }
@@ -132,6 +125,31 @@ public class StandbyActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
         registerReceiver(powerReceiver, filter);
+
+        if (!isPreview) {
+            setupOrientationListener();
+        }
+    }
+
+    private void setupOrientationListener() {
+        orientationEventListener = new android.view.OrientationEventListener(this, 
+                android.hardware.SensorManager.SENSOR_DELAY_NORMAL) {
+            @Override
+            public void onOrientationChanged(int orientation) {
+                if (orientation == ORIENTATION_UNKNOWN) return;
+
+                // Check if physical orientation is portrait (approx 0 or 180 degrees)
+                boolean isPortrait = (orientation >= 0 && orientation <= 30) || 
+                                    (orientation >= 150 && orientation <= 210) ||
+                                    (orientation >= 330 && orientation <= 360);
+
+                if (isPortrait) {
+                    android.util.Log.d("StandbyActivity", "Physical portrait detected, finishing Standby");
+                    finish();
+                }
+            }
+        };
+        orientationEventListener.enable();
     }
 
     private boolean isCharging() {
@@ -154,16 +172,6 @@ public class StandbyActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        boolean isPreview = getIntent().getBooleanExtra("is_preview", false);
-        if (!isPreview && newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            // If turned to portrait, finish standby
-            // Small delay to avoid accidental finishes during rotation transitions
-            handler.postDelayed(() -> {
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    finish();
-                }
-            }, 500);
-        }
     }
 
     @Override
@@ -288,5 +296,8 @@ public class StandbyActivity extends AppCompatActivity {
         try {
             unregisterReceiver(powerReceiver);
         } catch (Exception ignored) {}
+        if (orientationEventListener != null) {
+            orientationEventListener.disable();
+        }
     }
 }

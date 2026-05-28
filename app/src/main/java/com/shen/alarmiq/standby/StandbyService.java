@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -68,18 +69,29 @@ public class StandbyService extends Service {
     private void setupOrientationListener() {
         orientationEventListener = new android.view.OrientationEventListener(this, 
                 android.hardware.SensorManager.SENSOR_DELAY_NORMAL) {
+            private long lastTriggerTime = 0;
+            private static final long DEBOUNCE_MS = 2000; // Prevent rapid re-triggers
+
             @Override
             public void onOrientationChanged(int orientation) {
                 if (orientation == ORIENTATION_UNKNOWN) return;
 
-                // Check if landscape (approx 90 or 270 degrees)
-                boolean isLandscape = (orientation >= 60 && orientation <= 120) || 
-                                     (orientation >= 240 && orientation <= 300);
+                // Check if physical orientation is horizontal (landscape)
+                // 90 is landscape right, 270 is landscape left
+                // We use a wider margin (30-40 degrees) to be more forgiving of slight tilts
+                boolean isPhysicalLandscape = (orientation >= 45 && orientation <= 135) || 
+                                             (orientation >= 225 && orientation <= 315);
 
-                if (isLandscape && isPluggedIn) {
-                    Intent triggerIntent = new Intent("com.shen.alarmiq.intent.action.TRIGGER_STANDBY");
-                    triggerIntent.setPackage(getPackageName());
-                    sendBroadcast(triggerIntent);
+                if (isPhysicalLandscape && isPluggedIn) {
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - lastTriggerTime > DEBOUNCE_MS) {
+                        Log.d("StandbyService", "Physical landscape detected (angle: " + orientation + "), triggering Standby");
+                        lastTriggerTime = currentTime;
+                        
+                        Intent triggerIntent = new Intent("com.shen.alarmiq.intent.action.TRIGGER_STANDBY");
+                        triggerIntent.setPackage(getPackageName());
+                        sendBroadcast(triggerIntent);
+                    }
                 }
             }
         };

@@ -37,23 +37,13 @@ public class StandbyReceiver extends BroadcastReceiver {
             }
         }
 
-        if (Intent.ACTION_POWER_CONNECTED.equals(action) || 
-            Intent.ACTION_DOCK_EVENT.equals(action) ||
-            "com.shen.alarmiq.intent.action.TRIGGER_STANDBY".equals(action)) {
-            
-            Log.d(TAG, "Attempting to launch StandbyActivity");
+        if ("com.shen.alarmiq.intent.action.TRIGGER_STANDBY".equals(action)) {
+            Log.d(TAG, "Attempting to launch StandbyActivity via TRIGGER_STANDBY");
             checkAndLaunchStandby(context);
         }
     }
 
     private void checkAndLaunchStandby(Context context) {
-        // Only launch if in landscape
-        int orientation = context.getResources().getConfiguration().orientation;
-        if (orientation != android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-            Log.d(TAG, "Not launching Standby: Device is in portrait");
-            return;
-        }
-
         Intent standbyIntent = new Intent(context, StandbyActivity.class);
         standbyIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK 
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP 
