@@ -244,13 +244,15 @@ public class StandbyActivity extends AppCompatActivity {
             View rv = pager.getChildAt(0);
             if (rv instanceof RecyclerView) {
                 RecyclerView recyclerView = (RecyclerView) rv;
-                RecyclerView.ViewHolder holder = recyclerView.findViewHolderForAdapterPosition(pager.getCurrentItem());
-                if (holder != null) {
-                    dvdView = holder.itemView.findViewById(R.id.dvdContainer);
-                    if (dvdView != null) {
+                for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                    View child = recyclerView.getChildAt(i);
+                    View found = child.findViewById(R.id.dvdContainer);
+                    if (found != null) {
+                        dvdView = found;
                         // Initial random position
                         dvdX = random.nextInt(Math.max(1, pager.getWidth() - 300));
                         dvdY = random.nextInt(Math.max(1, pager.getHeight() - 200));
+                        break;
                     }
                 }
             }
@@ -262,17 +264,28 @@ public class StandbyActivity extends AppCompatActivity {
             int vW = dvdView.getWidth();
             int vH = dvdView.getHeight();
 
+            if (pW == 0 || pH == 0) return;
+
             dvdX += dvdDX;
             dvdY += dvdDY;
 
-            if (dvdX <= 0 || dvdX + vW >= pW) {
-                dvdDX = -dvdDX;
-                dvdX = Math.max(0, Math.min(dvdX, pW - vW));
+            if (dvdX <= 0) {
+                dvdDX = Math.abs(dvdDX);
+                dvdX = 0;
+                changeDVDColor();
+            } else if (dvdX + vW >= pW) {
+                dvdDX = -Math.abs(dvdDX);
+                dvdX = pW - vW;
                 changeDVDColor();
             }
-            if (dvdY <= 0 || dvdY + vH >= pH) {
-                dvdDY = -dvdDY;
-                dvdY = Math.max(0, Math.min(dvdY, pH - vH));
+
+            if (dvdY <= 0) {
+                dvdDY = Math.abs(dvdDY);
+                dvdY = 0;
+                changeDVDColor();
+            } else if (dvdY + vH >= pH) {
+                dvdDY = -Math.abs(dvdDY);
+                dvdY = pH - vH;
                 changeDVDColor();
             }
 
