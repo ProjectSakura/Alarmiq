@@ -205,15 +205,15 @@ public class StandbyActivity extends AppCompatActivity {
     private void applyStyle() {
         switch (currentStyle) {
             case 0: // Digital
-                txtTime.setTextSize(120);
+                txtTime.setTextSize(140);
                 txtDate.setVisibility(View.VISIBLE);
                 break;
             case 1: // Minimal
-                txtTime.setTextSize(80);
+                txtTime.setTextSize(100);
                 txtDate.setVisibility(View.GONE);
                 break;
             case 2: // Bold
-                txtTime.setTextSize(160);
+                txtTime.setTextSize(180);
                 txtDate.setVisibility(View.VISIBLE);
                 break;
         }

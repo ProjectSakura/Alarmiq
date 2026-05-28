@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Alarmiq</string>
     <string name="theme_toggle">Toggle theme</string>
     <string name="alarms">Alarms</string>
@@ -42,7 +42,7 @@
     <string name="more_options">More options</string>
     <string name="delete_alarm_confirm">Delete this alarm?</string>
     <string name="every_day">Every day</string>
-    <string name="tab_alarms">Alarms</string>
+    <string name="tab_alarms">Alarm</string>
     <string name="tab_stopwatch">Stopwatch</string>
     <string name="tab_timer">Timer</string>
     <string name="tab_world">World</string>
@@ -113,7 +113,7 @@
     <string name="about">About</string>
 
     <!-- Standby Mode -->
-    <string name="standby_mode">Standby Mode</string>
+    <string name="standby_mode">Standby</string>
     <string name="standby_enabled">Enable Standby Mode</string>
     <string name="standby_enabled_desc">Activates when charging and in landscape</string>
     <string name="standby_burn_in_protection">Burn-in Protection</string>
