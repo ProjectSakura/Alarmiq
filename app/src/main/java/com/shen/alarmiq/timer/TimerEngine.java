@@ -22,6 +22,7 @@ public class TimerEngine {
     private static final String KEY_TOTAL = "total_ms";
     private static final String KEY_END = "end_elapsed_at_ms";
     private static final String KEY_REMAINING = "remaining_ms";
+    private static final String KEY_REPEAT = "repeat_count";
 
     private static final int REQUEST_CODE = 0x7137E001;
 
@@ -39,6 +40,7 @@ public class TimerEngine {
     private long totalMs;        // initial requested duration
     private long endAtMs;        // wall-clock time the timer expires (RUNNING only)
     private long remainingMs;    // remaining when paused
+    private int repeatCount;     // 0 = infinite, 1 = once, 2 = twice
 
     private TimerEngine(Context ctx) {
         this.appCtx = ctx;
@@ -51,6 +53,7 @@ public class TimerEngine {
         totalMs = prefs.getLong(KEY_TOTAL, 0L);
         endAtMs = prefs.getLong(KEY_END, 0L);
         remainingMs = prefs.getLong(KEY_REMAINING, 0L);
+        repeatCount = prefs.getInt(KEY_REPEAT, 0);
         // If a running timer's end is already in the past, treat as idle.
         if (state == State.RUNNING && System.currentTimeMillis() >= endAtMs) {
             reset();
@@ -63,11 +66,18 @@ public class TimerEngine {
                 .putLong(KEY_TOTAL, totalMs)
                 .putLong(KEY_END, endAtMs)
                 .putLong(KEY_REMAINING, remainingMs)
+                .putInt(KEY_REPEAT, repeatCount)
                 .apply();
     }
 
     public State getState() { return state; }
     public long getTotalMs() { return totalMs; }
+    public int getRepeatCount() { return repeatCount; }
+
+    public void setRepeatCount(int count) {
+        this.repeatCount = count;
+        save();
+    }
 
     public long getRemainingMs() {
         if (state == State.RUNNING) {

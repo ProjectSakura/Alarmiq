@@ -70,6 +70,10 @@
     <string name="timer_channel_name">Timer</string>
     <string name="timer_running">Timer running</string>
     <string name="timer_remaining">%1$s remaining</string>
+    <string name="timer_repeat">Repeat</string>
+    <string name="timer_repeat_infinite">Until dismissed</string>
+    <string name="timer_repeat_once">Once</string>
+    <string name="timer_repeat_twice">Twice</string>
     <string name="lap_label">Lap %1$d</string>
     <string name="timer_of_total">of %1$s</string>
     <string name="set_hour">Set hour</string>

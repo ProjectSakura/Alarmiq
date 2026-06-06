@@ -1,7 +1,10 @@
 package com.shen.alarmiq.timer;
 
 import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +21,17 @@ import com.google.android.material.button.MaterialButton;
 import com.shen.alarmiq.R;
 
 public class TimerRingActivity extends AppCompatActivity {
+
+    private boolean isFinished = false;
+
+    private final BroadcastReceiver stopReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (TimerSoundService.ACTION_STOPPED.equals(intent.getAction())) {
+                doDismiss();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +64,22 @@ public class TimerRingActivity extends AppCompatActivity {
                 dismissTimer();
             }
         });
+
+        IntentFilter filter = new IntentFilter(TimerSoundService.ACTION_STOPPED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(stopReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(stopReceiver, filter);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (isFinished) {
+            finishAndRemoveTask();
+            return;
+        }
         hideSystemUI();
         if (isInMultiWindowMode()) {
             Intent intent = new Intent(this, TimerRingActivity.class);
@@ -66,6 +91,7 @@ public class TimerRingActivity extends AppCompatActivity {
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
+        if (isFinished) return;
         Intent intent = new Intent(this, TimerRingActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
@@ -83,6 +109,21 @@ public class TimerRingActivity extends AppCompatActivity {
 
     private void dismissTimer() {
         stopService(new Intent(this, TimerSoundService.class));
-        finishAndRemoveTask();
+        doDismiss();
+    }
+
+    private void doDismiss() {
+        if (!isFinished) {
+            isFinished = true;
+            finishAndRemoveTask();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            unregisterReceiver(stopReceiver);
+        } catch (Exception ignored) {}
     }
 }

@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.shen.alarmiq.R;
 
@@ -35,6 +36,8 @@ public class TimerFragment extends Fragment {
     private TextView txtTotal;
     private MaterialButton btnStart;
     private MaterialButton btnReset;
+    private View repeatSettingsGroup;
+    private MaterialButtonToggleGroup toggleRepeat;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable tick = new Runnable() {
@@ -68,6 +71,16 @@ public class TimerFragment extends Fragment {
         txtTotal = view.findViewById(R.id.txtTotal);
         btnStart = view.findViewById(R.id.btnTimerStart);
         btnReset = view.findViewById(R.id.btnTimerReset);
+        repeatSettingsGroup = view.findViewById(R.id.repeatSettingsGroup);
+        toggleRepeat = view.findViewById(R.id.toggleRepeat);
+
+        syncRepeatToggle();
+        toggleRepeat.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
+            if (checkedId == R.id.btnRepeatInfinite) engine.setRepeatCount(0);
+            else if (checkedId == R.id.btnRepeatOnce) engine.setRepeatCount(1);
+            else if (checkedId == R.id.btnRepeatTwice) engine.setRepeatCount(2);
+        });
 
         btnStart.setOnClickListener(v -> onPrimaryAction());
         btnReset.setOnClickListener(v -> {
@@ -141,6 +154,13 @@ public class TimerFragment extends Fragment {
         }
     }
 
+    private void syncRepeatToggle() {
+        int count = engine.getRepeatCount();
+        if (count == 0) toggleRepeat.check(R.id.btnRepeatInfinite);
+        else if (count == 1) toggleRepeat.check(R.id.btnRepeatOnce);
+        else if (count == 2) toggleRepeat.check(R.id.btnRepeatTwice);
+    }
+
     private void refresh() {
         TimerEngine.State state = engine.getState();
         long remaining = engine.getRemainingMs();
@@ -148,6 +168,7 @@ public class TimerFragment extends Fragment {
 
         boolean idle = state == TimerEngine.State.IDLE;
         inputGroup.setVisibility(idle ? View.VISIBLE : View.GONE);
+        repeatSettingsGroup.setVisibility(idle ? View.VISIBLE : View.GONE);
         countdownGroup.setVisibility(idle ? View.GONE : View.VISIBLE);
 
         if (!idle) {
@@ -168,6 +189,7 @@ public class TimerFragment extends Fragment {
             default:
                 btnStart.setText(R.string.start);
                 btnReset.setEnabled(total > 0);
+                syncRepeatToggle();
                 break;
         }
     }

@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -26,12 +24,15 @@ import com.shen.alarmiq.R;
 public class TimerSoundService extends Service {
 
     public static final String ACTION_DISMISS = "com.shen.alarmiq.timer.ACTION_DISMISS";
+    public static final String ACTION_STOPPED = "com.shen.alarmiq.timer.ACTION_STOPPED";
 
     private static final int NOTIFICATION_ID = 0xA1A3;
 
     private MediaPlayer mediaPlayer;
     private Vibrator vibrator;
     private PowerManager.WakeLock wakeLock;
+    private int playCount = 0;
+    private boolean isStopped = false;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -44,6 +45,8 @@ public class TimerSoundService extends Service {
             stopSelf();
             return START_NOT_STICKY;
         }
+        
+        isStopped = false;
         int fgType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
                 ? ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                 : 0;
@@ -84,21 +87,41 @@ public class TimerSoundService extends Service {
 
     private void startRingtone() {
         try {
-            Uri uri = RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALARM);
-            if (uri == null) {
-                uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-            }
-            if (uri == null) return;
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
+            TimerEngine engine = TimerEngine.get(this);
+            int repeatCount = engine.getRepeatCount();
+            
+            // Use the custom mp3 resource
+            mediaPlayer = MediaPlayer.create(this, R.raw.timer_end, 
+                new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ALARM)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build());
-            mediaPlayer.setLooping(true);
-            mediaPlayer.setDataSource(this, uri);
-            mediaPlayer.prepare();
+                    .build(), 
+                0);
+            
+            if (mediaPlayer == null) return;
+
+            if (repeatCount == 0) {
+                mediaPlayer.setLooping(true);
+            } else {
+                mediaPlayer.setLooping(false);
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    if (isStopped) return;
+                    playCount++;
+                    if (playCount < repeatCount) {
+                        mp.start();
+                    } else {
+                        stopSelf();
+                    }
+                });
+            }
+            
             mediaPlayer.start();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            TimerEngine engine = TimerEngine.get(this);
+            if (engine.getRepeatCount() > 0) {
+                stopSelf();
+            }
+        }
     }
 
     private void startVibration() {
@@ -109,8 +132,12 @@ public class TimerSoundService extends Service {
             vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         }
         if (vibrator == null || !vibrator.hasVibrator()) return;
+        
+        TimerEngine engine = TimerEngine.get(this);
+        int repeatIndex = (engine.getRepeatCount() == 0) ? 0 : -1;
+        
         long[] pattern = {0, 400, 300, 400, 300};
-        vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
+        vibrator.vibrate(VibrationEffect.createWaveform(pattern, repeatIndex));
     }
 
     private void acquireWakeLock() {
@@ -124,6 +151,7 @@ public class TimerSoundService extends Service {
 
     @Override
     public void onDestroy() {
+        isStopped = true;
         super.onDestroy();
         if (mediaPlayer != null) {
             try { mediaPlayer.stop(); } catch (Exception ignored) {}
@@ -140,5 +168,10 @@ public class TimerSoundService extends Service {
         }
         NotificationManager nm = getSystemService(NotificationManager.class);
         if (nm != null) nm.cancel(NOTIFICATION_ID);
+        
+        // Notify activity to finish. Use a small delay to ensure activity is ready to receive.
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            sendBroadcast(new Intent(ACTION_STOPPED));
+        }, 500);
     }
 }
