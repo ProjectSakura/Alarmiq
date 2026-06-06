@@ -125,6 +125,11 @@
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".standby.StandbySettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
     </application>
 
 </manifest>

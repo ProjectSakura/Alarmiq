@@ -21,12 +21,38 @@
             app:title="@string/app_name"
             app:titleTextAppearance="@style/TextAppearance.Material3.HeadlineSmall">
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAbout"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="8dp"
+                android:text="@string/about"
+                android:textColor="?attr/colorPrimary"
+                app:icon="@drawable/ic_help"
+                app:iconSize="18dp"
+                app:iconTint="?attr/colorPrimary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStandbySettings"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="4dp"
+                android:text="@string/standby_mode"
+                android:textColor="?attr/colorPrimary"
+                app:icon="@drawable/ic_alarm"
+                app:iconSize="18dp"
+                app:iconTint="?attr/colorPrimary" />
+
             <ImageButton
                 android:id="@+id/btnThemeToggle"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="end|center_vertical"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/theme_toggle"
                 android:src="@drawable/ic_moon"

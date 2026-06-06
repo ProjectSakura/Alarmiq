@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -21,6 +22,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.shen.alarmiq.alarm.AlarmFragment;
+import com.shen.alarmiq.standby.StandbyActivity;
+import com.shen.alarmiq.standby.StandbySettingsFragment;
 import com.shen.alarmiq.stopwatch.StopwatchFragment;
 import com.shen.alarmiq.timer.TimerFragment;
 import com.shen.alarmiq.world.WorldClockFragment;
@@ -30,12 +33,18 @@ public class MainActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> notificationsLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {});
 
+    private boolean standbyHandled = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AlarmiqApp.applySavedTheme(this);
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState != null) {
+            standbyHandled = savedInstanceState.getBoolean("standby_handled", false);
+        }
 
         View root = findViewById(R.id.main);
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
@@ -46,32 +55,51 @@ public class MainActivity extends AppCompatActivity {
 
         setupThemeToggle();
         setupAboutDialog();
+        setupStandbySettingsButton();
 
         ViewPager2 pager = findViewById(R.id.pager);
         if (pager != null) {
             setupPager(pager);
-            if (getIntent().getBooleanExtra("show_standby", false)) {
-                pager.setCurrentItem(4, false);
-            }
         } else {
             setupMultiPane(savedInstanceState);
         }
+
+        // Surgical intent handling: Only process show_standby on fresh launch or new intent
+        handleStandbyIntent(getIntent(), savedInstanceState == null);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationsLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
         }
     }
 
+    private void handleStandbyIntent(android.content.Intent intent, boolean isFresh) {
+        if (intent != null && intent.getBooleanExtra("show_standby", false)) {
+            if (isFresh || !standbyHandled) {
+                standbyHandled = true;
+                intent.removeExtra("show_standby");
+
+                ViewPager2 pager = findViewById(R.id.pager);
+                if (pager != null) {
+                    pager.setCurrentItem(4, false);
+                } else {
+                    startActivity(new android.content.Intent(this, com.shen.alarmiq.standby.StandbySettingsActivity.class));
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("standby_handled", standbyHandled);
+    }
+
     @Override
     protected void onNewIntent(android.content.Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        if (intent.getBooleanExtra("show_standby", false)) {
-            ViewPager2 pager = findViewById(R.id.pager);
-            if (pager != null) {
-                pager.setCurrentItem(4, false);
-            }
-        }
+        standbyHandled = false; // Reset to allow processing the new intent
+        handleStandbyIntent(intent, true);
     }
 
     private void setupAboutDialog() {
@@ -98,6 +126,15 @@ public class MainActivity extends AppCompatActivity {
             android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url));
             startActivity(intent);
         } catch (Exception ignored) {}
+    }
+
+    private void setupStandbySettingsButton() {
+        View btnStandby = findViewById(R.id.btnStandbySettings);
+        if (btnStandby == null) return;
+
+        btnStandby.setOnClickListener(v -> {
+            startActivity(new android.content.Intent(this, com.shen.alarmiq.standby.StandbySettingsActivity.class));
+        });
     }
 
     private void setupThemeToggle() {
