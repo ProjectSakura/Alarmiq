@@ -48,27 +48,31 @@ public class Alarm {
 
     /** Returns the next trigger time in millis (epoch), based on now. */
     public long nextTriggerMillis() {
-        Calendar now = Calendar.getInstance();
-        Calendar candidate = (Calendar) now.clone();
-        candidate.set(Calendar.HOUR_OF_DAY, hour);
-        candidate.set(Calendar.MINUTE, minute);
-        candidate.set(Calendar.SECOND, 0);
-        candidate.set(Calendar.MILLISECOND, 0);
+        return nextTriggerMillis(java.util.Calendar.getInstance());
+    }
+
+    /** Returns the next trigger time in millis (epoch), based on the provided reference time. */
+    public long nextTriggerMillis(java.util.Calendar now) {
+        java.util.Calendar candidate = (java.util.Calendar) now.clone();
+        candidate.set(java.util.Calendar.HOUR_OF_DAY, hour);
+        candidate.set(java.util.Calendar.MINUTE, minute);
+        candidate.set(java.util.Calendar.SECOND, 0);
+        candidate.set(java.util.Calendar.MILLISECOND, 0);
 
         if (!isRepeating()) {
             if (!candidate.after(now)) {
-                candidate.add(Calendar.DAY_OF_YEAR, 1);
+                candidate.add(java.util.Calendar.DAY_OF_YEAR, 1);
             }
             return candidate.getTimeInMillis();
         }
 
         for (int i = 0; i < 8; i++) {
-            int dayOfWeek = candidate.get(Calendar.DAY_OF_WEEK); // 1=Sun
+            int dayOfWeek = candidate.get(java.util.Calendar.DAY_OF_WEEK); // 1=Sun
             int bit = 1 << (dayOfWeek - 1);
             if ((repeatMask & bit) != 0 && candidate.after(now)) {
                 return candidate.getTimeInMillis();
             }
-            candidate.add(Calendar.DAY_OF_YEAR, 1);
+            candidate.add(java.util.Calendar.DAY_OF_YEAR, 1);
         }
         return candidate.getTimeInMillis();
     }

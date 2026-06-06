@@ -101,6 +101,9 @@
     <string name="hint_minute_mode">Drag to set minute · Tap center for hour</string>
     <string name="snooze">Snooze 5m</string>
     <string name="dismiss">Dismiss</string>
+    <string name="upcoming_alarm_title">Upcoming alarm</string>
+    <string name="upcoming_alarm_text">Alarm set for %1$s</string>
+    <string name="upcoming_alarm_dismiss">Dismiss now</string>
     <string name="time">Time</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>

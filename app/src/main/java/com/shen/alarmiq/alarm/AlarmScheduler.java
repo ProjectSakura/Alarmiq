@@ -26,18 +26,44 @@ public class AlarmScheduler {
     }
 
     public long schedule(Alarm alarm) {
-        long trigger = alarm.nextTriggerMillis();
+        return schedule(alarm, alarm.nextTriggerMillis());
+    }
+
+    public long schedule(Alarm alarm, long trigger) {
         PendingIntent pi = pendingIntentFor(alarm.id);
         AlarmManager.AlarmClockInfo info = new AlarmManager.AlarmClockInfo(trigger, pi);
         alarmManager.setAlarmClock(info, pi);
+
+        // Schedule upcoming notification 30 minutes before if difficulty is NONE
+        if (alarm.difficulty == com.shen.alarmiq.math.Difficulty.NONE) {
+            long upcomingTrigger = trigger - (30 * 60 * 1000L);
+            if (upcomingTrigger > System.currentTimeMillis()) {
+                PendingIntent upi = upcomingPendingIntentFor(alarm.id);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, upcomingTrigger, upi);
+            } else {
+                cancelUpcoming(alarm.id);
+            }
+        } else {
+            // Cancel any existing upcoming notification if difficulty changed
+            cancelUpcoming(alarm.id);
+        }
+
         return trigger;
     }
 
     public long snooze(Alarm alarm) {
-        long trigger = System.currentTimeMillis() + (5 * 60 * 1000L);
+        return snooze(alarm, System.currentTimeMillis());
+    }
+
+    public long snooze(Alarm alarm, long baseTime) {
+        long trigger = baseTime + (5 * 60 * 1000L);
         PendingIntent pi = pendingIntentFor(alarm.id);
         AlarmManager.AlarmClockInfo info = new AlarmManager.AlarmClockInfo(trigger, pi);
         alarmManager.setAlarmClock(info, pi);
+        
+        // After snooze, we don't usually show an upcoming notification for the same instance
+        cancelUpcoming(alarm.id);
+        
         return trigger;
     }
 
@@ -45,13 +71,32 @@ public class AlarmScheduler {
         PendingIntent pi = pendingIntentFor(alarmId);
         alarmManager.cancel(pi);
         pi.cancel();
+        cancelUpcoming(alarmId);
+    }
+
+    public void cancelUpcoming(long alarmId) {
+        PendingIntent upi = upcomingPendingIntentFor(alarmId);
+        alarmManager.cancel(upi);
+        upi.cancel();
     }
 
     private PendingIntent pendingIntentFor(long alarmId) {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.setAction(AlarmReceiver.ACTION_FIRE);
         intent.putExtra(EXTRA_ALARM_ID, alarmId);
-        int requestCode = (int) (alarmId & 0x7fffffff);
+        int requestCode = (int) (alarmId & 0x3fffffff);
+        return PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    private PendingIntent upcomingPendingIntentFor(long alarmId) {
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.setAction(AlarmReceiver.ACTION_UPCOMING);
+        intent.putExtra(EXTRA_ALARM_ID, alarmId);
+        int requestCode = (int) (alarmId & 0x3fffffff) | 0x40000000;
         return PendingIntent.getBroadcast(
                 context,
                 requestCode,
