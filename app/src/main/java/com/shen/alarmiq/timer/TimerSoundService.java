@@ -47,14 +47,23 @@ public class TimerSoundService extends Service {
         }
         
         isStopped = false;
+
+        // 1. Immediately launch Activity (highest priority)
+        launchRingActivity();
+
+        // 2. Start Foreground Service requirements
         int fgType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
                 ? ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                 : 0;
         ServiceCompat.startForeground(this, NOTIFICATION_ID, buildNotification(), fgType);
+        
+        // 3. Acquire WakeLock
         acquireWakeLock();
+        
+        // 4. Start Sound and Vibration
         startRingtone();
         startVibration();
-        launchRingActivity();
+        
         return START_STICKY;
     }
 
@@ -81,47 +90,63 @@ public class TimerSoundService extends Service {
         Intent open = new Intent(this, TimerRingActivity.class);
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP
                 | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
         startActivity(open);
     }
 
     private void startRingtone() {
-        try {
-            TimerEngine engine = TimerEngine.get(this);
-            int repeatCount = engine.getRepeatCount();
-            
-            // Use the custom mp3 resource
-            mediaPlayer = MediaPlayer.create(this, R.raw.timer_end, 
-                new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ALARM)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build(), 
-                0);
-            
-            if (mediaPlayer == null) return;
+        // Run on background thread to avoid blocking main thread
+        new Thread(() -> {
+            try {
+                TimerEngine engine = TimerEngine.get(this);
+                int repeatCount = engine.getRepeatCount();
+                
+                // Use a standard MediaPlayer flow for faster initialization
+                MediaPlayer mp = MediaPlayer.create(this, R.raw.timer_end, 
+                    new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build(), 
+                    0);
+                
+                if (mp == null) {
+                    if (repeatCount > 0) stopSelf();
+                    return;
+                }
 
-            if (repeatCount == 0) {
-                mediaPlayer.setLooping(true);
-            } else {
-                mediaPlayer.setLooping(false);
-                mediaPlayer.setOnCompletionListener(mp -> {
-                    if (isStopped) return;
-                    playCount++;
-                    if (playCount < repeatCount) {
-                        mp.start();
-                    } else {
-                        stopSelf();
+                synchronized (this) {
+                    if (isStopped) {
+                        mp.release();
+                        return;
                     }
-                });
+                    mediaPlayer = mp;
+                }
+
+                if (repeatCount == 0) {
+                    mediaPlayer.setLooping(true);
+                } else {
+                    mediaPlayer.setLooping(false);
+                    mediaPlayer.setOnCompletionListener(doneMp -> {
+                        synchronized (this) {
+                            if (isStopped) return;
+                            playCount++;
+                            if (playCount < repeatCount) {
+                                doneMp.start();
+                            } else {
+                                stopSelf();
+                            }
+                        }
+                    });
+                }
+                
+                mediaPlayer.start();
+            } catch (Exception e) {
+                if (TimerEngine.get(this).getRepeatCount() > 0) {
+                    stopSelf();
+                }
             }
-            
-            mediaPlayer.start();
-        } catch (Exception e) {
-            TimerEngine engine = TimerEngine.get(this);
-            if (engine.getRepeatCount() > 0) {
-                stopSelf();
-            }
-        }
+        }).start();
     }
 
     private void startVibration() {
@@ -151,7 +176,9 @@ public class TimerSoundService extends Service {
 
     @Override
     public void onDestroy() {
-        isStopped = true;
+        synchronized (this) {
+            isStopped = true;
+        }
         super.onDestroy();
         if (mediaPlayer != null) {
             try { mediaPlayer.stop(); } catch (Exception ignored) {}
@@ -169,9 +196,7 @@ public class TimerSoundService extends Service {
         NotificationManager nm = getSystemService(NotificationManager.class);
         if (nm != null) nm.cancel(NOTIFICATION_ID);
         
-        // Notify activity to finish. Use a small delay to ensure activity is ready to receive.
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            sendBroadcast(new Intent(ACTION_STOPPED));
-        }, 500);
+        // Notify activity to finish.
+        sendBroadcast(new Intent(ACTION_STOPPED));
     }
 }
