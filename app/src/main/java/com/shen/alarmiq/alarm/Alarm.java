@@ -20,6 +20,8 @@ public class Alarm {
     /** content:// URI for the chosen ringtone, or null to use the system default alarm tone. */
     public String soundUri;
     public String soundTitle;
+    /** The specific instance (millis) that should be skipped. 0 means none. */
+    public long skippedInstanceTime;
 
     public Alarm() {
         this.id = System.currentTimeMillis();
@@ -31,6 +33,7 @@ public class Alarm {
         this.repeatMask = 0;
         this.soundUri = null;
         this.soundTitle = null;
+        this.skippedInstanceTime = 0;
     }
 
     public String formatTime(boolean is24h) {
@@ -59,22 +62,40 @@ public class Alarm {
         candidate.set(java.util.Calendar.SECOND, 0);
         candidate.set(java.util.Calendar.MILLISECOND, 0);
 
+        long trigger;
         if (!isRepeating()) {
             if (!candidate.after(now)) {
                 candidate.add(java.util.Calendar.DAY_OF_YEAR, 1);
             }
-            return candidate.getTimeInMillis();
+            trigger = candidate.getTimeInMillis();
+        } else {
+            long found = -1;
+            for (int i = 0; i < 8; i++) {
+                int dayOfWeek = candidate.get(java.util.Calendar.DAY_OF_WEEK); // 1=Sun
+                int bit = 1 << (dayOfWeek - 1);
+                if ((repeatMask & bit) != 0 && candidate.after(now)) {
+                    found = candidate.getTimeInMillis();
+                    break;
+                }
+                candidate.add(java.util.Calendar.DAY_OF_YEAR, 1);
+            }
+            trigger = found != -1 ? found : candidate.getTimeInMillis();
         }
 
-        for (int i = 0; i < 8; i++) {
-            int dayOfWeek = candidate.get(java.util.Calendar.DAY_OF_WEEK); // 1=Sun
-            int bit = 1 << (dayOfWeek - 1);
-            if ((repeatMask & bit) != 0 && candidate.after(now)) {
-                return candidate.getTimeInMillis();
-            }
-            candidate.add(java.util.Calendar.DAY_OF_YEAR, 1);
+        // If this trigger is the one we want to skip, find the NEXT one.
+        if (skippedInstanceTime != 0 && Math.abs(trigger - skippedInstanceTime) < 1000) {
+            java.util.Calendar nextSearch = java.util.Calendar.getInstance();
+            nextSearch.setTimeInMillis(trigger + 60000); // Start search 1 minute after skipped trigger
+            
+            // Temporarily clear skippedInstanceTime to avoid recursion
+            long originalSkip = skippedInstanceTime;
+            skippedInstanceTime = 0;
+            long nextTrigger = nextTriggerMillis(nextSearch);
+            skippedInstanceTime = originalSkip;
+            return nextTrigger;
         }
-        return candidate.getTimeInMillis();
+
+        return trigger;
     }
 
     public JSONObject toJson() throws JSONException {
@@ -88,6 +109,7 @@ public class Alarm {
         o.put("repeatMask", repeatMask);
         if (soundUri != null) o.put("soundUri", soundUri);
         if (soundTitle != null) o.put("soundTitle", soundTitle);
+        o.put("skippedInstanceTime", skippedInstanceTime);
         return o;
     }
 
@@ -102,6 +124,7 @@ public class Alarm {
         a.repeatMask = o.optInt("repeatMask", 0);
         a.soundUri = o.has("soundUri") ? o.optString("soundUri", null) : null;
         a.soundTitle = o.has("soundTitle") ? o.optString("soundTitle", null) : null;
+        a.skippedInstanceTime = o.optLong("skippedInstanceTime", 0);
         return a;
     }
 }

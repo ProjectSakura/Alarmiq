@@ -64,6 +64,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         context.stopService(new Intent(context, AlarmRingingService.class));
         Alarm alarm = new AlarmStorage(context).getById(alarmId);
         if (alarm != null) {
+            alarm.skippedInstanceTime = 0; // Clear skip if snoozed
             AlarmScheduler scheduler = new AlarmScheduler(context);
             if (isUpcoming) {
                 scheduler.snooze(alarm, alarm.nextTriggerMillis());
@@ -119,6 +120,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Alarm alarm = storage.getById(alarmId);
         if (alarm == null) return;
 
+        alarm.skippedInstanceTime = 0; // Clear any old skip
         AlarmScheduler scheduler = new AlarmScheduler(context);
         if (alarm.isRepeating()) {
             long currentTrigger = alarm.nextTriggerMillis();

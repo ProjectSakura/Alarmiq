@@ -136,7 +136,14 @@ public class AlarmFragment extends Fragment implements AlarmAdapter.Listener {
 
     @Override
     public void onAlarmToggled(Alarm alarm, boolean enabled) {
+        if (!enabled && alarm.isRepeating()) {
+            // Special case for repeating alarms: ask if they want to skip just the next one
+            showSkipInstanceDialog(alarm);
+            return;
+        }
+
         alarm.enabled = enabled;
+        alarm.skippedInstanceTime = 0; // Clear skip if toggled manually
         storage.upsert(alarm);
         if (enabled) {
             long trigger = scheduler.schedule(alarm);
@@ -144,6 +151,38 @@ public class AlarmFragment extends Fragment implements AlarmAdapter.Listener {
         } else {
             scheduler.cancel(alarm.id);
         }
+    }
+
+    private void showSkipInstanceDialog(Alarm alarm) {
+        long nextTrigger = alarm.nextTriggerMillis();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEEE, MMM d", java.util.Locale.getDefault());
+        String dateStr = sdf.format(new java.util.Date(nextTrigger));
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.skip_instance_title)
+                .setMessage(getString(R.string.skip_instance_message, dateStr))
+                .setPositiveButton(R.string.action_skip_only, (d, w) -> {
+                    alarm.enabled = true;
+                    alarm.skippedInstanceTime = nextTrigger;
+                    storage.upsert(alarm);
+                    long trigger = scheduler.schedule(alarm);
+                    showCountdownSnackbar(trigger, null);
+                    refresh(); // Refresh list to ensure toggle stays ON
+                })
+                .setNeutralButton(R.string.action_turn_off_all, (d, w) -> {
+                    alarm.enabled = false;
+                    alarm.skippedInstanceTime = 0;
+                    storage.upsert(alarm);
+                    scheduler.cancel(alarm.id);
+                    refresh();
+                })
+                .setNegativeButton(R.string.cancel, (d, w) -> {
+                    refresh(); // Revert toggle visually
+                })
+                .setOnCancelListener(d -> {
+                    refresh(); // Revert toggle visually
+                })
+                .show();
     }
 
     @Override

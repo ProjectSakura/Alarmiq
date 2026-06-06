@@ -87,7 +87,12 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.VH> {
             }
             String difficulty = itemView.getContext().getString(a.difficulty.labelRes);
             String repeat = formatRepeat(a.repeatMask);
-            txtMeta.setText(repeat.isEmpty() ? difficulty : difficulty + " · " + repeat);
+            String meta = repeat.isEmpty() ? difficulty : difficulty + " · " + repeat;
+            
+            if (a.enabled && a.skippedInstanceTime != 0) {
+                meta += " · " + itemView.getContext().getString(R.string.skipped_instance);
+            }
+            txtMeta.setText(meta);
 
             switchEnabled.setOnCheckedChangeListener(null);
             switchEnabled.setChecked(a.enabled);

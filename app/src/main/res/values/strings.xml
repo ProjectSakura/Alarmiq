@@ -104,6 +104,12 @@
     <string name="upcoming_alarm_title">Upcoming alarm</string>
     <string name="upcoming_alarm_text">Alarm set for %1$s</string>
     <string name="upcoming_alarm_dismiss">Dismiss now</string>
+    <string name="skip_next_instance">Skip only next instance?</string>
+    <string name="skip_instance_title">Skip instance</string>
+    <string name="skip_instance_message">Would you like to skip the next scheduled occurrence on %1$s, or turn off the alarm completely?</string>
+    <string name="action_skip_only">Skip next only</string>
+    <string name="action_turn_off_all">Turn off completely</string>
+    <string name="skipped_instance">Skipped</string>
     <string name="time">Time</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>

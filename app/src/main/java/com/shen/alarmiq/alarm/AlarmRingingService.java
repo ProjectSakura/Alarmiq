@@ -191,6 +191,7 @@ public class AlarmRingingService extends Service {
 
     private void rescheduleIfRepeating(Alarm alarm) {
         if (alarm == null) return;
+        alarm.skippedInstanceTime = 0; // Clear skip if it rang (it wasn't skipped)
         if (alarm.isRepeating() && alarm.enabled) {
             new AlarmScheduler(this).schedule(alarm);
         } else {
