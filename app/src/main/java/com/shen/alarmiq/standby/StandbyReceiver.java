@@ -28,16 +28,28 @@ public class StandbyReceiver extends BroadcastReceiver {
             return;
         }
 
-        // Check for overlay permission on Android 10+ for background start
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(context)) {
-                Log.d(TAG, "Missing overlay permission - cannot launch Standby from background");
-                // Optional: Show a notification here if we haven't told the user lately
-                return;
+        // OnePlus/Xiaomi specific: Always attempt to ensure service is running on power events
+        if (Intent.ACTION_POWER_CONNECTED.equals(action) || 
+            Intent.ACTION_BOOT_COMPLETED.equals(action) || 
+            "android.intent.action.LOCKED_BOOT_COMPLETED".equals(action)) {
+            
+            Intent serviceIntent = new Intent(context, StandbyService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent);
+            } else {
+                context.startService(serviceIntent);
             }
         }
 
         if ("com.shen.alarmiq.intent.action.TRIGGER_STANDBY".equals(action)) {
+            // Check for overlay permission on Android 10+ for background start
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!Settings.canDrawOverlays(context)) {
+                    Log.d(TAG, "Missing overlay permission - cannot launch Standby from background");
+                    return;
+                }
+            }
+            
             Log.d(TAG, "Attempting to launch StandbyActivity via TRIGGER_STANDBY");
             checkAndLaunchStandby(context);
         }
