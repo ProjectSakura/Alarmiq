@@ -44,7 +44,7 @@ Alarmiq is a modern, feature-rich Android clock application built with a focus o
 
 1. **Clone the repo**:
    ```bash
-   git clone https://github.com/yourusername/Alarmiq.git
+   git clone https://github.com/ProjectSakura/Alarmiq.git
    ```
 2. **Open in Android Studio**:
    Ensure you have the latest version of Android Studio (Ladybug or newer).
