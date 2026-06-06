@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +44,7 @@ public class StandbySettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setupSwitches(view);
         setupOverlayPermission(view);
+        setupBatteryExclusion(view);
         setupBackgroundPicker(view);
         setupPreviewButton(view);
         setupGuide(view);
@@ -62,6 +64,7 @@ public class StandbySettingsFragment extends Fragment {
         super.onResume();
         if (getView() != null) {
             updateOverlayPermissionUI(getView());
+            updateBatteryExclusionUI(getView());
         }
     }
 
@@ -119,6 +122,36 @@ public class StandbySettingsFragment extends Fragment {
         View layout = view.findViewById(R.id.layoutOverlayPermission);
         View divider = view.findViewById(R.id.dividerPermission);
         if (hasPermission) {
+            layout.setVisibility(View.GONE);
+            divider.setVisibility(View.GONE);
+        } else {
+            layout.setVisibility(View.VISIBLE);
+            divider.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setupBatteryExclusion(View view) {
+        MaterialButton btnGrant = view.findViewById(R.id.btnGrantBattery);
+        btnGrant.setOnClickListener(v -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                        Uri.parse("package:" + requireContext().getPackageName()));
+                startActivity(intent);
+            }
+        });
+        updateBatteryExclusionUI(view);
+    }
+
+    private void updateBatteryExclusionUI(View view) {
+        boolean isIgnoring = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager pm = (PowerManager) requireContext().getSystemService(Context.POWER_SERVICE);
+            isIgnoring = pm != null && pm.isIgnoringBatteryOptimizations(requireContext().getPackageName());
+        }
+
+        View layout = view.findViewById(R.id.layoutBatteryPermission);
+        View divider = view.findViewById(R.id.dividerBattery);
+        if (isIgnoring) {
             layout.setVisibility(View.GONE);
             divider.setVisibility(View.GONE);
         } else {

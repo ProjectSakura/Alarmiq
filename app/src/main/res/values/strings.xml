@@ -147,6 +147,8 @@
     <string name="standby_brightness">Standby Brightness</string>
     <string name="standby_overlay_permission">Appear on top</string>
     <string name="standby_overlay_permission_desc">Required to show Standby Mode over the lock screen</string>
+    <string name="standby_battery_optimization">Battery Optimization</string>
+    <string name="standby_battery_optimization_desc">Request exemption to prevent system from killing Standby mode in background</string>
     <string name="grant_permission">Grant</string>
     <string name="standby_preview">Preview Standby</string>
 </resources>
