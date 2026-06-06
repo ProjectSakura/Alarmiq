@@ -37,9 +37,14 @@ public class AlarmScheduler {
         // Schedule upcoming notification 30 minutes before if difficulty is NONE
         if (alarm.difficulty == com.shen.alarmiq.math.Difficulty.NONE) {
             long upcomingTrigger = trigger - (30 * 60 * 1000L);
-            if (upcomingTrigger > System.currentTimeMillis()) {
+            long now = System.currentTimeMillis();
+            
+            // If the alarm is in the future, schedule the notification.
+            // If it's within the 30-min window, fire it almost immediately (1s delay).
+            if (trigger > now) {
+                long finalTrigger = Math.max(upcomingTrigger, now + 1000L);
                 PendingIntent upi = upcomingPendingIntentFor(alarm.id);
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, upcomingTrigger, upi);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, finalTrigger, upi);
             } else {
                 cancelUpcoming(alarm.id);
             }
