@@ -197,6 +197,8 @@ public class TimerSoundService extends Service {
         if (nm != null) nm.cancel(NOTIFICATION_ID);
         
         // Notify activity to finish.
-        sendBroadcast(new Intent(ACTION_STOPPED));
+        Intent stoppedIntent = new Intent(ACTION_STOPPED);
+        stoppedIntent.setPackage(getPackageName());
+        sendBroadcast(stoppedIntent);
     }
 }

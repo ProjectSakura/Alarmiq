@@ -11,8 +11,9 @@ public class SavedCity {
     public final String cityName;
 
     public SavedCity(String zoneId, String cityName) {
-        this.zoneId = zoneId;
-        this.cityName = cityName;
+        // Sanitize input to prevent delimiter injection
+        this.zoneId = zoneId == null ? "" : zoneId.replace("|", "").replace(";", "");
+        this.cityName = cityName == null ? "" : cityName.replace("|", "").replace(";", "");
     }
 
     @Override
